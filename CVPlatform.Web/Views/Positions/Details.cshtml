@@ -1,0 +1,196 @@
+﻿@using CVPlatform.Application.Positions
+@using CVPlatform.Domain.Enums
+@using CVPlatform.Web.Models.Positions
+@model PositionDto
+
+@{
+    ViewData["Title"] = Model.Title;
+    var isRecruiter = User.IsInRole("Recruiter") || User.IsInRole("Administrator");
+    var isCandidate = User.IsInRole("Candidate");
+
+    string OperatorText(RuleOperator op) => op switch
+    {
+        RuleOperator.Equals => "=",
+        RuleOperator.NotEquals => "≠",
+        RuleOperator.GreaterThan => ">",
+        RuleOperator.LessThan => "<",
+        RuleOperator.GreaterThanOrEqual => "≥",
+        RuleOperator.LessThanOrEqual => "≤",
+        _ => Html.T("RuleOperator." + op)
+    };
+
+    string RuleValue(PositionAccessRuleDto rule)
+    {
+        if (!string.IsNullOrEmpty(rule.ComparisonOptionLabel))
+            return rule.ComparisonOptionLabel;
+
+        if (bool.TryParse(rule.ComparisonValue, out var flag))
+            return Html.T(flag ? "Common.Yes" : "Common.No");
+
+        return rule.ComparisonValue;
+    }
+}
+
+<div class="page-header">
+    <div>
+        <a class="btn btn-outline-secondary btn-sm mb-2" asp-action="Index">
+            <i class="bi bi-arrow-left"></i> @Html.T("Positions.BackToList")
+        </a>
+        <h1>@Model.Title</h1>
+    </div>
+    <div class="header-actions">
+        @if (isRecruiter)
+        {
+            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">
+                <i class="bi bi-pencil"></i> @Html.T("Common.Edit")
+            </a>
+        }
+        @if (isCandidate)
+        {
+            <a class="btn btn-primary" asp-controller="Cvs" asp-action="Create">
+                <i class="bi bi-file-earmark-plus"></i> @Html.T("Positions.CreateCv")
+            </a>
+        }
+    </div>
+</div>
+
+@await Html.PartialAsync("_PositionTabs", new PositionTabsViewModel(Model.Id, "Overview"))
+
+<div class="cv-details-grid">
+    <div>
+        <div class="surface-card mb-3">
+            <div class="section-title">@Html.T("Positions.FormDescription")</div>
+            <p class="mb-0">@Model.ShortDescription</p>
+        </div>
+
+        <div class="surface-card mb-3">
+            <div class="section-title">@Html.T("Positions.AttributeTemplate")</div>
+            @if (!Model.Attributes.Any())
+            {
+                <p class="text-muted mb-0">@Html.T("Positions.NoAttributesSelected")</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>@Html.T("Positions.RuleAttribute")</th>
+                                <th>@Html.T("Positions.Required")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Attributes)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@item.AttributeName</td>
+                                    <td>
+                                        @if (item.IsRequired)
+                                        {
+                                            <span class="badge-soft-warning">@Html.T("Positions.Required")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="surface-card mb-3">
+            <div class="section-title">@Html.T("Positions.AccessRules")</div>
+            @if (Model.AccessMode == AccessMode.Public)
+            {
+                <p class="text-muted mb-0">@Html.T("Positions.PublicHint")</p>
+            }
+            else if (!Model.AccessRules.Any())
+            {
+                <p class="text-muted mb-0">@Html.T("Positions.NoRules")</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>@Html.T("Positions.RuleAttribute")</th>
+                                <th>@Html.T("Positions.RuleCondition")</th>
+                                <th>@Html.T("Positions.RuleValue")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var rule in Model.AccessRules)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@rule.AttributeName</td>
+                                    <td>@OperatorText(rule.Operator)</td>
+                                    <td>@RuleValue(rule)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="surface-card">
+            <div class="section-title">@Html.T("Positions.ProjectFilters")</div>
+
+            @if (!Model.RequiredProjectTags.Any() && Model.MaxProjects == 0)
+            {
+                <p class="text-muted mb-0">@Html.T("Positions.NoProjectFilters")</p>
+            }
+
+            @if (Model.RequiredProjectTags.Any())
+            {
+                <div class="tag-row mb-2">
+                    @foreach (var tag in Model.RequiredProjectTags)
+                    {
+                        <span class="tag">@tag</span>
+                    }
+                </div>
+                <p class="text-muted small">@Html.T("Positions.AllTagsRequired")</p>
+            }
+
+            @if (Model.MaxProjects > 0)
+            {
+                <div class="cv-info-row">
+                    <span class="cv-info-label">@Html.T("Positions.MaxProjects")</span>
+                    <span class="cv-info-value">@Model.MaxProjects</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("Positions.Overview")</div>
+
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Positions.Company")</span>
+            <span class="cv-info-value">@(string.IsNullOrWhiteSpace(Model.Company) ? "—" : Model.Company)</span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Positions.Level")</span>
+            <span class="cv-info-value">@(Model.Level.HasValue ? Html.T("PositionLevel." + Model.Level) : "—")</span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Positions.Access")</span>
+            <span class="cv-info-value">
+                <span class="badge-soft-@(Model.AccessMode == AccessMode.Public ? "info" : "warning")">@Html.T("AccessMode." + Model.AccessMode)</span>
+            </span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Positions.CvCount")</span>
+            <span class="cv-info-value">@Model.CvCount</span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Positions.Created")</span>
+            <span class="cv-info-value">@Model.CreatedAt.ToString("dd MMM yyyy")</span>
+        </div>
+    </div>
+</div>

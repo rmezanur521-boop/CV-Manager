@@ -1,0 +1,84 @@
+﻿@model IReadOnlyList<CVPlatform.Application.Cvs.CvSummaryDto>
+
+@{
+    ViewData["Title"] = "My CVs";
+    var isAdminViewingOther = (bool)(ViewBag.IsAdminViewingOther ?? false);
+    var candidateId = ViewBag.CandidateId as string;
+}
+
+<div class="page-header">
+    <h1>@Html.T("Cvs.Title")</h1>
+    @if (!isAdminViewingOther)
+    {
+        <a class="btn btn-primary" asp-action="Create">
+            <i class="bi bi-plus-lg"></i> @Html.T("Cvs.New")
+        </a>
+    }
+</div>
+
+<div class="surface-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-person" style="font-size:1.6rem;"></i>
+            <p class="mb-0 mt-2">@Html.T("Cvs.NoCvsYet")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="data-table" id="cvs-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>@Html.T("Positions.Title")</th>
+                        <th>@Html.T("Cvs.Status")</th>
+                        <th>@Html.T("Cvs.Created")</th>
+                        <th>@Html.T("Cvs.Published")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cv in Model)
+                    {
+                        <tr data-id="@cv.Id"
+                            data-edit-url="@Url.Action("Edit", new { id = cv.Id, candidateId })"
+                            class="cv-row selectable-row">
+                            <td onclick="event.stopPropagation()">
+                                <input type="radio" name="selectedCv" value="@cv.Id" class="form-check-input" />
+                            </td>
+                            <td class="fw-semibold">@cv.PositionTitle</td>
+                            <td>
+                                <span class="badge-soft-@(cv.Status == CVPlatform.Domain.Enums.CvStatus.Published ? "success" : "warning")">
+                                    @Html.T($"CvStatus.{cv.Status}")
+                                </span>
+                            </td>
+                            <td>@cv.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>@(cv.PublishedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="selection-bar">
+            <span class="hint" id="selection-hint">@Html.T("Cvs.SelectRowHint")</span>
+            <a class="btn btn-outline-secondary btn-sm disabled" id="open-cv-btn" href="#">
+                <i class="bi bi-box-arrow-up-right"></i> @Html.T("Cvs.Open")
+            </a>
+            @if (!isAdminViewingOther)
+            {
+                <form method="post" asp-action="Delete" id="delete-cv-form" onsubmit="return confirm('@Html.T("Cvs.ConfirmDelete")');">
+                    <input type="hidden" name="id" id="delete-cv-id" />
+                    <input type="hidden" name="candidateId" value="@candidateId" />
+                    <button class="btn btn-outline-danger btn-sm" type="submit" id="delete-cv-btn" disabled>
+                        <i class="bi bi-trash"></i> @Html.T("Common.Delete")
+                    </button>
+                </form>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/my-cvs-toolbar.js"></script>
+}

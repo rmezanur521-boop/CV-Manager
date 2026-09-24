@@ -1,0 +1,99 @@
+﻿@model IReadOnlyList<CVPlatform.Application.Attributes.AttributeDto>
+
+@{
+    ViewData["Title"] = "Attribute Library";
+}
+
+<div class="page-header">
+    <h1>@Html.T("Attributes.Title")</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i> @Html.T("Attributes.New")</a>
+</div>
+
+@if (TempData["Error"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="surface-card">
+    <form method="get" class="page-toolbar">
+        <div class="page-search">
+            <i class="bi bi-search"></i>
+            <input type="text" name="prefix" value="@ViewBag.Prefix" placeholder="@Html.T("Attributes.SearchPlaceholder")" />
+        </div>
+        <select name="categoryId" class="form-select" style="width:auto" asp-items="ViewBag.Categories">
+            <option value="">@Html.T("Attributes.AllCategories")</option>
+        </select>
+        <button type="submit" class="btn btn-outline-secondary btn-sm">@Html.T("Common.Search")</button>
+        <div class="page-toolbar-actions">
+            <a class="icon-btn" href="@Url.Action("Index")" title="@Html.T("Common.Refresh")">
+                <i class="bi bi-arrow-clockwise"></i>
+            </a>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-tags" style="font-size:1.6rem;"></i>
+            <p class="mb-0 mt-2">@Html.T("Attributes.NoResults")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="data-table" id="attributes-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>@Html.T("Attributes.Name")</th>
+                        <th>@Html.T("Attributes.Category")</th>
+                        <th>@Html.T("Attributes.Type")</th>
+                        <th>@Html.T("Attributes.Options")</th>
+                        <th>@Html.T("Attributes.BuiltIn")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr data-id="@item.Id" data-builtin="@item.IsBuiltIn.ToString().ToLower()" data-edit-url="@Url.Action("Edit", new { id = item.Id })" class="selectable-row">
+                            <td onclick="event.stopPropagation()">
+                                <input type="radio" name="selectedAttribute" value="@item.Id" class="form-check-input" />
+                            </td>
+                            <td class="fw-semibold">@item.Name</td>
+                            <td>@item.CategoryName</td>
+                            <td>@Html.T($"AttributeType.{item.Type}")</td>
+                            <td>@(item.Options.Any() ? string.Join(", ", item.Options.Select(o => o.Value)) : "—")</td>
+                            <td>
+                                @if (item.IsBuiltIn)
+                                {
+                                    <span class="badge-soft-info">@Html.T("Attributes.BuiltIn")</span>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="selection-bar">
+            <span class="hint" id="selection-hint" data-builtin-hint="@Html.T("Attributes.BuiltInHint")">@Html.T("Attributes.SelectRowHint")</span>
+            <a class="btn btn-outline-secondary btn-sm disabled" id="edit-btn" href="#">
+                <i class="bi bi-pencil"></i> @Html.T("Common.Edit")
+            </a>
+            <form method="post" asp-action="Delete" id="delete-form" onsubmit="return confirm('@Html.T("Common.ConfirmDelete")');">
+                <input type="hidden" name="id" id="delete-id" />
+                <button class="btn btn-outline-danger btn-sm" type="submit" id="delete-btn" disabled>
+                    <i class="bi bi-trash"></i> @Html.T("Common.Delete")
+                </button>
+            </form>
+        </div>
+    }
+</div>
+
+@section Scripts {
+        <script src="~/js/attributes-toolbar.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,10 @@
+﻿@model string
+@{
+    var targetId = ViewBag.IsAdminViewingOther == true ? (string?)ViewBag.TargetId : null;
+}
+
+<div class="profile-tabs">
+    <a class="@(Model == "Me" ? "active" : "")" asp-action="Index" asp-route-id="@targetId">@Html.T("Profile.Me")</a>
+    <a class="@(Model == "Info" ? "active" : "")" asp-action="Info" asp-route-id="@targetId">@Html.T("Profile.Info")</a>
+    <a class="@(Model == "Projects" ? "active" : "")" asp-action="Projects" asp-route-id="@targetId">@Html.T("Profile.Projects")</a>
+</div>

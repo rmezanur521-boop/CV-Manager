@@ -1,0 +1,6 @@
+﻿@model CVPlatform.Web.Models.Positions.PositionTabsViewModel
+
+<div class="profile-tabs">
+    <a class="@(Model.Active == "Overview" ? "active" : "")" asp-controller="Positions" asp-action="Details" asp-route-id="@Model.PositionId">@Html.T("Positions.Overview")</a>
+    <a class="@(Model.Active == "Discussion" ? "active" : "")" asp-controller="Discussions" asp-action="Index" asp-route-positionId="@Model.PositionId">@Html.T("Positions.Discussion")</a>
+</div>

@@ -1,0 +1,107 @@
+﻿@model IReadOnlyList<CVPlatform.Application.Positions.PositionDto>
+
+@{
+    ViewData["Title"] = "Positions";
+    var isRecruiter = User.IsInRole("Recruiter") || User.IsInRole("Administrator");
+}
+
+<div class="page-header">
+    <h1>@Html.T("Positions.Title")</h1>
+    @if (isRecruiter)
+    {
+        <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i> @Html.T("Positions.New")</a>
+    }
+</div>
+
+<div class="surface-card">
+    <form method="get" class="page-toolbar">
+        <div class="page-search">
+            <i class="bi bi-search"></i>
+            <input type="text" name="q" value="@ViewBag.Query" placeholder="@Html.T("Positions.SearchPlaceholder")" />
+        </div>
+        <button type="submit" class="btn btn-outline-secondary btn-sm">@Html.T("Common.Search")</button>
+        <div class="page-toolbar-actions">
+            <a class="icon-btn" href="@Url.Action("Index")" title="@Html.T("Common.Refresh")">
+                <i class="bi bi-arrow-clockwise"></i>
+            </a>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-briefcase" style="font-size:1.6rem;"></i>
+            <p class="mb-0 mt-2">@Html.T("Positions.NoResults")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="data-table" id="positions-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>@Html.T("Positions.Title")</th>
+                        <th>@Html.T("Positions.Company")</th>
+                        <th>@Html.T("Positions.Level")</th>
+                        <th>@Html.T("Positions.Access")</th>
+                        <th>@Html.T("Positions.CvCount")</th>
+                        <th>@Html.T("Positions.Created")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var position in Model)
+                    {
+                        <tr data-id="@position.Id"
+                            data-details-url="@Url.Action("Details", new { id = position.Id })"
+                            data-edit-url="@(isRecruiter ? Url.Action("Edit", new { id = position.Id }) : null)"
+                            class="selectable-row">
+                            <td>
+                                <input type="radio" name="selectedPosition" value="@position.Id" class="form-check-input" />
+                            </td>
+                            <td class="fw-semibold">@position.Title</td>
+                            <td>@(string.IsNullOrWhiteSpace(position.Company) ? "—" : position.Company)</td>
+                            <td>@(position.Level.HasValue ? Html.T($"PositionLevel.{position.Level}") : "—")</td>
+                            <td>
+                                <span class="badge-soft-@(position.AccessMode == CVPlatform.Domain.Enums.AccessMode.Public ? "info" : "warning")">
+                                    @Html.T($"AccessMode.{position.AccessMode}")
+                                </span>
+                            </td>
+                            <td>@position.CvCount</td>
+                            <td>@position.CreatedAt.ToString("dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="selection-bar">
+            <span class="hint" id="selection-hint">@Html.T(isRecruiter ? "Positions.SelectRowHint" : "Positions.SelectRowHintView")</span>
+            <a class="btn btn-outline-secondary btn-sm disabled" id="open-btn" href="#">
+                <i class="bi bi-eye"></i> @Html.T("Common.Open")
+            </a>
+            @if (isRecruiter)
+            {
+                <a class="btn btn-outline-secondary btn-sm disabled" id="edit-btn" href="#">
+                    <i class="bi bi-pencil"></i> @Html.T("Common.Edit")
+                </a>
+                <form method="post" asp-action="Duplicate" id="duplicate-form">
+                    <input type="hidden" name="id" id="duplicate-id" />
+                    <button class="btn btn-outline-secondary btn-sm" type="submit" id="duplicate-btn" disabled>
+                        <i class="bi bi-files"></i> @Html.T("Common.Duplicate")
+                    </button>
+                </form>
+                <form method="post" asp-action="Delete" id="delete-form" onsubmit="return confirm('@Html.T("Common.ConfirmDelete")');">
+                    <input type="hidden" name="id" id="delete-id" />
+                    <button class="btn btn-outline-danger btn-sm" type="submit" id="delete-btn" disabled>
+                        <i class="bi bi-trash"></i> @Html.T("Common.Delete")
+                    </button>
+                </form>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/positions-toolbar.js" asp-append-version="true"></script>
+}

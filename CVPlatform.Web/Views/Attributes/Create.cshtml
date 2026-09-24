@@ -1,0 +1,21 @@
+﻿@model CVPlatform.Web.Models.Attributes.AttributeFormViewModel
+
+@{
+    ViewData["Title"] = Html.T("Attributes.New");
+}
+
+<div class="page-header">
+    <h1>@Html.T("Attributes.New")</h1>
+    <div class="header-actions">
+        <a class="btn btn-outline-secondary" asp-action="Index">@Html.T("Common.Cancel")</a>
+        <button type="submit" form="attribute-form" class="btn btn-primary">@Html.T("Common.Save")</button>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" id="attribute-form">
+    <partial name="_AttributeForm" model="Model" />
+</form>
+
+@section Scripts {
+    <script src="~/js/attribute-form.js"></script>
+}

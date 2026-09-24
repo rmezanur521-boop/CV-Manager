@@ -1,0 +1,159 @@
+@model CVPlatform.Web.Models.Cvs.RecruiterCvDetailsViewModel
+@inject CVPlatform.Application.Common.IFileStorageService FileStorage
+
+@{
+    ViewData["Title"] = $"CV - {Model.Header.CandidateName}";
+    var statusBadge = Model.Header.Status == CVPlatform.Domain.Enums.CvStatus.Published ? "success" : "warning";
+}
+
+<div class="page-header">
+    <h1>@Model.Header.CandidateName <small class="text-muted">— @Model.Header.PositionTitle</small></h1>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> @Html.T("RecruiterCvs.BackToList")
+    </a>
+</div>
+
+<div class="cv-details-grid">
+    <div>
+        <div class="surface-card mb-3">
+            <div class="section-title">@Html.T("Cvs.AttributesHeading")</div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <tbody>
+                        @foreach (var item in Model.Cv.Attributes)
+                        {
+                            <tr>
+                                <td class="fw-semibold" style="width:250px">@item.AttributeName</td>
+                                <td class="@(item.IsMissing ? "text-danger" : "")">
+                                    @if (item.IsMissing)
+                                    {
+                                        <span class="text-danger fw-semibold">@Html.T("Common.NotSpecified")</span>
+                                    }
+                                    else
+                                    {
+                                        @switch (item.Type)
+                                        {
+                                            case CVPlatform.Domain.Enums.AttributeType.Image:
+                                                var imgUrl = !string.IsNullOrWhiteSpace(item.TextValue) ? FileStorage.GetPresignedUrl(item.TextValue) : null;
+                                                if (imgUrl != null)
+                                                {
+                                                    <img src="@imgUrl" alt="@item.AttributeName" class="img-thumbnail" style="max-height:160px" />
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">@Html.T("Common.NotSpecified")</span>
+                                                }
+                                                break;
+
+                                            case CVPlatform.Domain.Enums.AttributeType.Dropdown:
+                                                var opt = item.Options.FirstOrDefault(o => o.Id == item.SelectedOptionId)?.Value;
+                                                <span>@(opt ?? "-")</span>
+                                                break;
+
+                                            case CVPlatform.Domain.Enums.AttributeType.DateRange:
+                                                <span>@item.DateRangeStart?.ToString("dd MMM yyyy") &ndash; @(item.DateRangeEnd?.ToString("dd MMM yyyy") ?? "Present")</span>
+                                                break;
+
+                                            case CVPlatform.Domain.Enums.AttributeType.Date:
+                                                <span>@item.DateValue?.ToString("dd MMM yyyy")</span>
+                                                break;
+
+                                            case CVPlatform.Domain.Enums.AttributeType.Numeric:
+                                                <span>@item.NumericValue?.ToString("G29")</span>
+                                                break;
+
+                                            case CVPlatform.Domain.Enums.AttributeType.Boolean:
+                                                <span class="badge @(item.BooleanValue == true ? "bg-success" : "bg-secondary")">@(item.BooleanValue == true ? "Yes" : "No")</span>
+                                                break;
+
+                                            case CVPlatform.Domain.Enums.AttributeType.MarkdownText:
+                                                <div class="attribute-markdown">@Html.Markdown(item.TextValue ?? string.Empty)</div>
+                                                break;
+
+                                            default:
+                                                <span>@item.TextValue</span>
+                                                break;
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+                <div class="surface-card">
+            <div class="section-title">@Html.T("Cvs.ProjectsHeading")</div>
+            @if (!Model.Cv.Projects.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-kanban" style="font-size:1.6rem;"></i>
+                    <p class="mb-0 mt-2">@Html.T("Cvs.NoProjectsMatched")</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var project in Model.Cv.Projects)
+                {
+                    <div class="project-card">
+                        <h3>@project.Name</h3>
+                        <div class="project-period">
+                            @project.StartDate.ToString("MMM yyyy") &ndash; @(project.EndDate?.ToString("MMM yyyy") ?? Html.T("Profile.Present"))
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(project.DescriptionMarkdown))
+                        {
+                            <div class="project-desc">@Html.Markdown(project.DescriptionMarkdown)</div>
+                        }
+                        @if (project.Tags.Any())
+                        {
+                            <div class="tag-row">
+                                @foreach (var tag in project.Tags)
+                                {
+                                    <span class="tag">@tag</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterCvs.CvInformation")</div>
+
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("RecruiterCvs.Candidate")</span>
+            <span class="cv-info-value">@Model.Header.CandidateName</span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("RecruiterCvs.Position")</span>
+            <span class="cv-info-value">@Model.Header.PositionTitle</span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Cvs.Status")</span>
+            <span class="cv-info-value">
+                <span class="badge-soft-@statusBadge">@Html.T($"CvStatus.{Model.Header.Status}")</span>
+            </span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("Cvs.Published")</span>
+            <span class="cv-info-value">@(Model.Header.PublishedAt?.ToString("dd MMM yyyy") ?? "-")</span>
+        </div>
+        <div class="cv-info-row">
+            <span class="cv-info-label">@Html.T("RecruiterCvs.Likes")</span>
+            <span class="cv-info-value">
+                <button type="button" class="btn btn-sm like-btn @(Model.Header.LikedByCurrentUser ? "btn-primary" : "btn-outline-primary")"
+                        data-cv-id="@Model.Header.CvId">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                    <span class="like-count">@Model.Header.LikesCount</span>
+                </button>
+            </span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/recruiter-cv-like.js"></script>
+}

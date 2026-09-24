@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Confirmation Failed";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card-icon danger">
+            <i class="bi bi-x-circle"></i>
+        </div>
+        <h2 class="auth-title">Email confirmation failed.</h2>
+        <p class="auth-status-text">The link may be invalid or expired.</p>
+        <a asp-action="Login" asp-controller="Account" class="btn auth-btn-primary">Back to Login</a>
+    </div>
+</div>

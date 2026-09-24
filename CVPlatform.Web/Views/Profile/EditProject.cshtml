@@ -1,0 +1,52 @@
+﻿@model CVPlatform.Web.Models.Profile.ProjectFormViewModel
+@{
+    ViewData["Title"] = "Edit Project";
+    var targetId = ViewBag.TargetId as string;
+    var routeId = targetId == User.GetUserId() ? null : targetId;
+}
+
+<div class="page-header">
+    <h1>@Html.T("Profile.EditProjectTitle")</h1>
+    <div class="header-actions">
+        <a class="btn btn-outline-secondary" asp-action="Projects" asp-route-id="@routeId">@Html.T("Common.Cancel")</a>
+        <button type="submit" form="project-form" class="btn btn-primary">@Html.T("Common.Save")</button>
+    </div>
+</div>
+
+<div class="surface-card">
+    <form asp-action="EditProject" asp-route-candidateId="@routeId" method="post" id="project-form">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Version" />
+
+        <div class="field-grid mb-3">
+            <div class="field">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+            <div class="field">
+                <label asp-for="StartDate"></label>
+                <input asp-for="StartDate" class="form-control" type="date" />
+            </div>
+            <div class="field">
+                <label asp-for="EndDate"></label>
+                <input asp-for="EndDate" class="form-control" type="date" />
+            </div>
+        </div>
+
+        <div class="field mb-3">
+            <label asp-for="DescriptionMarkdown">@Html.T("Profile.Description")</label>
+            <textarea asp-for="DescriptionMarkdown" class="form-control" rows="6"></textarea>
+        </div>
+
+        <div class="field mb-1 position-relative">
+            <label asp-for="TagsCsv">@Html.T("Profile.TechnologyTags")</label>
+            <input asp-for="TagsCsv" id="TagsCsv" class="form-control" autocomplete="off" />
+            <div id="tag-suggestions" class="list-group position-absolute"></div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/tag-autocomplete.js"></script>
+}

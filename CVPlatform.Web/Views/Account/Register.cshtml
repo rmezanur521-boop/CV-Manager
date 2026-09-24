@@ -1,0 +1,48 @@
+﻿@model CVPlatform.Web.Models.Account.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card-icon">
+            <i class="bi bi-person-plus"></i>
+        </div>
+        <h2 class="auth-title">Register</h2>
+        <p class="auth-subtitle">Create a new account to get started.</p>
+
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+        {
+            <div asp-validation-summary="All" class="auth-validation-summary"></div>
+        }
+
+        <form asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" class="auth-form">
+            <div class="mb-3">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+            </div>
+            <button type="submit" class="btn auth-btn-primary">Register</button>
+        </form>
+
+        <p class="auth-footer-text">
+            Already have an account? <a asp-action="Login" class="auth-link">Login</a>
+        </p>
+    </div>
+</div>

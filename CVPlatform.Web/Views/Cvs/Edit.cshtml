@@ -1,0 +1,112 @@
+﻿@model CVPlatform.Web.Models.Cvs.CvEditViewModel
+
+@{
+    ViewData["Title"] = $"CV - {Model.PositionTitle}";
+    var candidateId = ViewBag.CandidateId as string;
+}
+
+<div class="page-header">
+    <div>
+        <a class="btn btn-outline-secondary btn-sm mb-2" asp-action="Index" asp-route-candidateId="@candidateId">
+            <i class="bi bi-arrow-left"></i> @Html.T("Cvs.BackToList")
+        </a>
+        <h1>
+            @Model.PositionTitle
+            <span class="badge-soft-@(Model.Status == CVPlatform.Domain.Enums.CvStatus.Published ? "success" : "warning")">
+                @Html.T($"CvStatus.{Model.Status}")
+            </span>
+        </h1>
+    </div>
+    <div class="header-actions">
+        @if (Model.Status == CVPlatform.Domain.Enums.CvStatus.Draft)
+        {
+            <form asp-action="Publish" method="post">
+                <input type="hidden" name="id" value="@Model.CvId" />
+                <input type="hidden" name="version" value="@Model.Version" />
+                <input type="hidden" name="candidateId" value="@candidateId" />
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-send-check"></i> @Html.T("Cvs.Publish")
+                </button>
+            </form>
+        }
+        <form asp-action="Delete" method="post" onsubmit="return confirm('@Html.T("Cvs.ConfirmDelete")');">
+            <input type="hidden" name="id" value="@Model.CvId" />
+            <input type="hidden" name="candidateId" value="@candidateId" />
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> @Html.T("Common.Delete")
+            </button>
+        </form>
+    </div>
+</div>
+
+@if (TempData["Error"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="alert @(Model.MissingCount == 0 ? "alert-success" : "alert-warning") d-flex align-items-center gap-2">
+    <i class="bi @(Model.MissingCount == 0 ? "bi-check-circle" : "bi-exclamation-triangle")"></i>
+    @if (Model.MissingCount == 0)
+    {
+        @Html.T("Cvs.AllAttributesFilled")
+    }
+    else
+    {
+        @Model.MissingCount @Html.T("Cvs.MissingCount")
+    }
+</div>
+
+<div class="profile-content-card mb-3">
+    <h2 class="h5 mb-3">@Html.T("Cvs.AttributesHeading")</h2>
+    <div id="attributes-container" data-cv-id="@Model.CvId">
+        @foreach (var attribute in Model.Attributes)
+        {
+            @await Html.PartialAsync("_AttributeInput", attribute)
+        }
+    </div>
+</div>
+
+<div class="profile-content-card">
+    <h2 class="h5 mb-3">@Html.T("Cvs.ProjectsHeading")</h2>
+    @if (!Model.Projects.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-kanban" style="font-size:1.6rem;"></i>
+            <p class="mb-0 mt-2">@Html.T("Cvs.NoProjectsMatched")</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var project in Model.Projects)
+        {
+            <div class="project-card">
+                <h3>@project.Name</h3>
+                <div class="project-period">
+                    @project.StartDate.ToString("MMM yyyy") &ndash; @(project.EndDate?.ToString("MMM yyyy") ?? Html.T("Profile.Present"))
+                </div>
+                @if (!string.IsNullOrWhiteSpace(project.DescriptionMarkdown))
+                {
+                    <div class="project-desc">@Html.Raw(CVPlatform.Web.Services.MarkdownRenderer.ToHtml(project.DescriptionMarkdown))</div>
+                }
+                @if (project.Tags.Any())
+                {
+                    <div class="tag-row">
+                        @foreach (var tag in project.Tags)
+                        {
+                            <span class="tag">@tag</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/image-upload.js"></script>
+    <script src="~/js/attribute-input.js"></script>
+    <script>
+        initImageUploads("#attributes-container");
+        initAttributeInputs("#attributes-container", () => `/Cvs/SaveAttribute?cvId=${@Model.CvId}&candidateId=${@Html.Raw(System.Text.Json.JsonSerializer.Serialize(candidateId))}`);
+    </script>
+}

@@ -1,0 +1,49 @@
+﻿@model CVPlatform.Web.Models.Profile.MeViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    var summary = (CVPlatform.Web.Models.Profile.ProfileSummaryViewModel)ViewBag.Summary;
+}
+
+<div class="page-header">
+    <h1>@Html.T("Profile.Me")</h1>
+</div>
+
+<div class="profile-grid">
+    @await Html.PartialAsync("_ProfileSummaryCard", summary)
+
+    <div class="profile-content-card">
+        @await Html.PartialAsync("_ProfileTabs", "Me")
+
+        <div id="me-form"
+             data-concurrency-stamp="@Model.ConcurrencyStamp"
+             data-saved-text="@Html.T("Profile.SavedJustNow")"
+             data-saving-text="@Html.T("Profile.SavingStatus")">
+            <div class="field-grid">
+                <div class="field">
+                    <label>@Html.T("Profile.FirstName")</label>
+                    <input id="FirstName" class="form-control" value="@Model.FirstName" />
+                </div>
+                <div class="field">
+                    <label>@Html.T("Profile.LastName")</label>
+                    <input id="LastName" class="form-control" value="@Model.LastName" />
+                </div>
+                <div class="field">
+                    <label>@Html.T("Profile.Location")</label>
+                    <input id="Location" class="form-control" value="@Model.Location" />
+                </div>
+                <div class="field">
+                    <label>@Html.T("Profile.PhotoUrl")</label>
+                    <input id="PhotoUrl" class="form-control" value="@Model.PhotoUrl" />
+                </div>
+            </div>
+            <div class="autosave-status mt-3">
+                <i class="bi bi-cloud-check"></i>
+                <span id="save-status"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/profile-autosave.js"></script>
+}

@@ -1,0 +1,31 @@
+﻿@model CVPlatform.Web.Models.Profile.ProfileSummaryViewModel
+
+<div class="profile-summary-card">
+    <div class="profile-avatar">
+        @if (!string.IsNullOrWhiteSpace(Model.PhotoUrl))
+        {
+            <img src="@Model.PhotoUrl" alt="@Model.FullName" />
+        }
+        else
+        {
+            @Model.Initials
+        }
+    </div>
+    <div class="profile-summary-name">@Model.FullName</div>
+    <div class="profile-summary-meta">
+        @(string.IsNullOrWhiteSpace(Model.Location) ? Html.T("Profile.NoLocationSet") : Model.Location)
+    </div>
+
+    <div class="profile-stat-row">
+        <span>@Html.T("Profile.TotalCvs")</span>
+        <span class="num">@Model.TotalCvs</span>
+    </div>
+    <div class="profile-stat-row">
+        <span>@Html.T("Profile.PublishedCvs")</span>
+        <span class="num">@Model.PublishedCvs</span>
+    </div>
+    <div class="profile-stat-row">
+        <span>@Html.T("Profile.AttributesFilled")</span>
+        <span class="num">@Model.AttributesFilled / @Model.AttributesTotal</span>
+    </div>
+</div>

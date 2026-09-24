@@ -1,0 +1,79 @@
+@model List<CVPlatform.Web.Models.Shared.AttributeInputViewModel>
+@{
+    ViewData["Title"] = "My Info";
+    var summary = (CVPlatform.Web.Models.Profile.ProfileSummaryViewModel)ViewBag.Summary;
+    var available = ViewBag.AvailableAttributes as List<CVPlatform.Application.Attributes.AttributeDto>;
+    var recentlyUsed = ViewBag.RecentlyUsed as List<CVPlatform.Application.Attributes.AttributeDto>;
+}
+
+<div class="page-header">
+    <h1>@Html.T("Profile.Info")</h1>
+</div>
+
+<div class="profile-grid">
+    @await Html.PartialAsync("_ProfileSummaryCard", summary)
+
+    <div class="profile-content-card">
+        @await Html.PartialAsync("_ProfileTabs", "Info")
+
+        @if (recentlyUsed is not null && recentlyUsed.Count > 0)
+        {
+            <div class="recently-used-row">
+                <span>@Html.T("Profile.RecentlyUsed")</span>
+                @foreach (var r in recentlyUsed)
+                {
+                    <span class="tag">@r.Name</span>
+                }
+            </div>
+        }
+
+        <form method="post" asp-action="AddAttribute" asp-route-id="@(summary.IsAdminViewingOther ? summary.TargetId : null)" class="add-attribute-bar">
+            <select name="attributeId" class="form-select">
+                <option value="">@Html.T("Profile.SelectAttributePrompt")</option>
+                @foreach (var attr in available ?? new())
+                {
+                    <option value="@attr.Id">@attr.Name (@attr.CategoryName)</option>
+                }
+            </select>
+            <button class="btn btn-primary text-nowrap" type="submit">
+                <i class="bi bi-plus-lg"></i> @Html.T("Profile.AddAttribute")
+            </button>
+        </form>
+
+        <div id="info-attributes">
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-collection" style="font-size:1.6rem;"></i>
+                    <p class="mb-0 mt-2">@Html.T("Profile.NoAttributesYet")</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <div class="d-flex align-items-start gap-2 mb-2">
+                        <div class="flex-grow-1">
+                            @await Html.PartialAsync("_AttributeInput", item)
+                        </div>
+                        <form method="post" asp-action="RemoveAttribute" asp-route-id="@(summary.IsAdminViewingOther ? summary.TargetId : null)" class="mt-2">
+                            <input type="hidden" name="attributeId" value="@item.AttributeId" />
+                            <button type="submit" class="icon-btn icon-btn-sm" title="@Html.T("Profile.Remove")">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/image-upload.js"></script>
+    <script src="~/js/attribute-input.js"></script>
+    <script>
+        initImageUploads("#info-attributes");
+        initAttributeInputs("#info-attributes", () => "/Profile/SaveValue@(summary.IsAdminViewingOther ? "?id=" + summary.TargetId : "")");
+    </script>
+}

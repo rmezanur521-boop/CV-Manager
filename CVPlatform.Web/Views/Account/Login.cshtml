@@ -1,0 +1,55 @@
+﻿@model CVPlatform.Web.Models.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card-icon">
+            <i class="bi bi-person-circle"></i>
+        </div>
+        <h2 class="auth-title">Login</h2>
+        <p class="auth-subtitle">Welcome back! Please enter your details.</p>
+
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+        {
+            <div asp-validation-summary="All" class="auth-validation-summary"></div>
+        }
+
+        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" class="auth-form">
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" />
+            </div>
+            <div class="form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label"></label>
+            </div>
+            <button type="submit" class="btn auth-btn-primary">Login</button>
+        </form>
+
+        <div class="auth-divider"><span>Or login with</span></div>
+
+        <div class="auth-social-group">
+            <form asp-action="ExternalLogin" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                <button type="submit" name="provider" value="Google" class="btn auth-btn-social">
+                    <i class="bi bi-google"></i> Google
+                </button>
+            </form>
+            <form asp-action="ExternalLogin" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                <button type="submit" name="provider" value="Facebook" class="btn auth-btn-social">
+                    <i class="bi bi-facebook"></i> Facebook
+                </button>
+            </form>
+        </div>
+
+        <p class="auth-footer-text">
+            Don't have an account? <a asp-action="Register" class="auth-link">Register</a>
+        </p>
+    </div>
+</div>

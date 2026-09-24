@@ -1,0 +1,179 @@
+@{
+    var me = ViewBag.Me as CVPlatform.Application.Profile.MeDto;
+    var values = ViewBag.Values as IReadOnlyList<CVPlatform.Application.Profile.CandidateAttributeValueDto> ?? Array.Empty<CVPlatform.Application.Profile.CandidateAttributeValueDto>();
+    var projects = ViewBag.Projects as IReadOnlyList<CVPlatform.Application.Projects.ProjectDto> ?? Array.Empty<CVPlatform.Application.Projects.ProjectDto>();
+    var cvs = ViewBag.Cvs as IReadOnlyList<CVPlatform.Application.Cvs.CvSummaryDto> ?? Array.Empty<CVPlatform.Application.Cvs.CvSummaryDto>();
+    var photoUrl = ViewBag.PhotoUrl as string;
+    var fullName = $"{me?.FirstName} {me?.LastName}".Trim();
+    ViewData["Title"] = $"{fullName} - Profile";
+}
+
+<div class="page-header">
+    <div>
+        <a class="btn btn-outline-secondary btn-sm mb-2" href="javascript:history.back()">
+            <i class="bi bi-arrow-left"></i> @Html.T("Common.Back")
+        </a>
+        <h1>@fullName</h1>
+    </div>
+</div>
+
+<div class="profile-grid">
+    <div class="profile-summary-card">
+        <div class="profile-avatar">
+            @if (!string.IsNullOrWhiteSpace(photoUrl))
+            {
+                <img src="@photoUrl" alt="@fullName" class="profile-avatar-img" />
+            }
+            else
+            {
+                <div class="profile-avatar-placeholder">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+            }
+        </div>
+        <div class="profile-name">@fullName</div>
+        <div class="profile-meta">
+            @if (!string.IsNullOrWhiteSpace(me?.Location))
+            {
+                <div class="profile-meta-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>@me.Location</span>
+                </div>
+            }
+        </div>
+        <div class="profile-stats">
+            <div class="profile-stat-box">
+                <span class="stat-number">@cvs.Count</span>
+                <span class="stat-label">@Html.T("Profile.PublishedCvs")</span>
+            </div>
+            <div class="profile-stat-box">
+                <span class="stat-number">@projects.Count</span>
+                <span class="stat-label">@Html.T("Profile.Projects")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content-card">
+        <div class="mb-4">
+            <h2 class="h5 mb-3">@Html.T("Profile.Info")</h2>
+            @if (!values.Any())
+            {
+                <p class="text-muted">@Html.T("Profile.NoAttributesYet")</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <tbody>
+                            @foreach (var val in values)
+                            {
+                                <tr>
+                                    <td class="fw-semibold" style="width:250px">@val.AttributeName</td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(val.TextValue))
+                                        {
+                                            <span>@val.TextValue</span>
+                                        }
+                                        else if (val.NumericValue.HasValue)
+                                        {
+                                            <span>@val.NumericValue.Value.ToString("G29")</span>
+                                        }
+                                        else if (val.DateValue.HasValue)
+                                        {
+                                            <span>@val.DateValue.Value.ToString("dd MMM yyyy")</span>
+                                        }
+                                        else if (val.DateRangeStart.HasValue)
+                                        {
+                                            <span>@val.DateRangeStart.Value.ToString("dd MMM yyyy") &ndash; @(val.DateRangeEnd?.ToString("dd MMM yyyy") ?? "Present")</span>
+                                        }
+                                        else if (val.BooleanValue.HasValue)
+                                        {
+                                            <span class="badge @(val.BooleanValue.Value ? "bg-success" : "bg-secondary")">@(val.BooleanValue.Value ? "Yes" : "No")</span>
+                                        }
+                                        else if (val.SelectedOptionId.HasValue)
+                                        {
+                                            <span>@(val.TextValue ?? "Selected")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="mb-4">
+            <h2 class="h5 mb-3">@Html.T("Profile.Projects")</h2>
+            @if (!projects.Any())
+            {
+                <p class="text-muted">@Html.T("Dashboard.NoData")</p>
+            }
+            else
+            {
+                @foreach (var proj in projects)
+                {
+                    <div class="project-card mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="h6 mb-1">@proj.Name</h3>
+                            <span class="text-muted small">@proj.StartDate.ToString("MMM yyyy") &ndash; @(proj.EndDate?.ToString("MMM yyyy") ?? "Present")</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(proj.DescriptionMarkdown))
+                        {
+                            <div class="project-desc">@Html.Markdown(proj.DescriptionMarkdown)</div>
+                        }
+                        @if (proj.Tags.Any())
+                        {
+                            <div class="tag-row mt-2">
+                                @foreach (var tag in proj.Tags)
+                                {
+                                    <span class="tag">@tag</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div>
+            <h2 class="h5 mb-3">@Html.T("Cvs.Title")</h2>
+            @if (!cvs.Any())
+            {
+                <p class="text-muted">@Html.T("Cvs.NoCvsYet")</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>@Html.T("Positions.Title")</th>
+                                <th>@Html.T("Cvs.Published")</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cv in cvs)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@cv.PositionTitle</td>
+                                    <td>@(cv.PublishedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-secondary" asp-controller="RecruiterCvs" asp-action="View" asp-route-id="@cv.Id">
+                                            <i class="bi bi-eye"></i> @Html.T("Common.Open")
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

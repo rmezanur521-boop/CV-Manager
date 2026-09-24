@@ -1,0 +1,99 @@
+﻿@using CVPlatform.Domain.Enums
+@model CVPlatform.Web.Models.Positions.PositionFormViewModel
+
+@{
+    var formDataJsonOptions = new System.Text.Json.JsonSerializerOptions
+    {
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+    };
+    formDataJsonOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+}
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<div class="surface-card mb-4">
+    <div class="section-title">@Html.T("Positions.BasicInfo")</div>
+    <div class="form-grid">
+        <div class="mb-3">
+            <label class="form-label">@Html.T("Positions.FormTitle")</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@Html.T("Positions.Company")</label>
+            <input asp-for="Company" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@Html.T("Positions.Level")</label>
+            <select asp-for="Level" class="form-select" asp-items="Html.GetEnumSelectList<PositionLevel>()">
+                <option value="">—</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@Html.T("Positions.AccessModeLabel")</label>
+            <select asp-for="AccessMode" id="access-mode-select" class="form-select" asp-items="Html.GetEnumSelectList<AccessMode>()"></select>
+        </div>
+    </div>
+    <div class="mb-0">
+        <label class="form-label">@Html.T("Positions.FormDescription")</label>
+        <textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="ShortDescription" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="surface-card mb-4">
+    <div class="section-title">@Html.T("Positions.AttributeTemplate")</div>
+    <div class="attribute-picker-grid">
+        <div>
+            <div class="page-search mb-2" style="max-width:none;">
+                <i class="bi bi-search"></i>
+                <input type="text" id="attribute-search" placeholder="@Html.T("Positions.SearchAttributes")" autocomplete="off" />
+            </div>
+            <div id="attribute-pick-list" class="attribute-pick-list"></div>
+        </div>
+        <div>
+            <div class="selected-attribute-header">@Html.T("Positions.SelectedAttributes")</div>
+            <div id="selected-attribute-list" class="selected-attribute-list"></div>
+        </div>
+    </div>
+</div>
+
+<div class="surface-card mb-4" id="access-rules-section">
+    <div class="section-title">@Html.T("Positions.AccessRules")</div>
+    <p class="text-muted small">@Html.T("Positions.AccessRulesHint")</p>
+    <div id="rules-container"></div>
+    <button type="button" id="add-rule" class="btn btn-sm btn-outline-primary mt-2">
+        <i class="bi bi-plus-lg"></i> @Html.T("Positions.AddRule")
+    </button>
+</div>
+
+<div class="surface-card mb-4">
+    <div class="section-title">@Html.T("Positions.ProjectFilters")</div>
+    <div class="form-grid">
+        <div class="mb-3" style="position:relative;">
+            <label class="form-label">@Html.T("Positions.RequiredTags")</label>
+            <input asp-for="RequiredProjectTagsCsv" id="project-tags-input" class="form-control" autocomplete="off" />
+            <div id="project-tag-suggestions" class="list-group position-absolute"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@Html.T("Positions.MaxProjects")</label>
+            <input asp-for="MaxProjects" class="form-control" type="number" min="0" />
+        </div>
+    </div>
+</div>
+
+<script id="position-form-data" type="application/json">
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new
+    {
+            attributeCatalog = Model.AttributeCatalog,
+                selectedAttributeIds = Model.SelectedAttributeIds,
+                requiredAttributeIds = Model.RequiredAttributeIds,
+                accessRules = Model.AccessRules,
+                strings = new
+                {
+                        required = Html.T("Positions.Required"),
+                        remove = Html.T("Common.Remove"),
+                        noAttributesSelected = Html.T("Positions.NoAttributesSelected")
+                }
+        }, formDataJsonOptions))
+</script>

@@ -1,0 +1,24 @@
+﻿@using CVPlatform.Web.Models.Positions
+@model PositionFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Position";
+}
+
+<div class="page-header">
+    <h1>@Html.T("Positions.EditTitle")</h1>
+    <div class="header-actions">
+        <a class="btn btn-outline-secondary" asp-action="Index">@Html.T("Common.Cancel")</a>
+        <button type="submit" form="position-form" class="btn btn-primary">@Html.T("Common.Save")</button>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post" id="position-form">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Version" />
+    <partial name="_PositionForm" model="Model" />
+</form>
+
+@section Scripts {
+    <script src="~/js/positions-form.js"></script>
+}

@@ -1,0 +1,41 @@
+﻿@using CVPlatform.Domain.Enums
+@model CVPlatform.Web.Models.Attributes.AttributeFormViewModel
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<div class="surface-card">
+    <div class="section-title">@Html.T("Attributes.FormHeading")</div>
+
+    <div class="form-grid">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">@Html.T("Attributes.Name")</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">@Html.T("Attributes.Category")</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="Model.Categories"></select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Type" class="form-label">@Html.T("Attributes.Type")</label>
+            <select asp-for="Type" id="attribute-type" class="form-select">
+                @foreach (var type in Enum.GetValues<AttributeType>())
+                {
+                    <option value="@type">@Html.T($"AttributeType.{type}")</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">@Html.T("Attributes.Description")</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-0" id="options-group">
+        <label asp-for="OptionsCsv" class="form-label">@Html.T("Attributes.OptionsLabel")</label>
+        <input asp-for="OptionsCsv" class="form-control" />
+        <div class="form-text">@Html.T("Attributes.OptionsHint")</div>
+    </div>
+</div>

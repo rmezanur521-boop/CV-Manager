@@ -1,0 +1,60 @@
+@using CVPlatform.Web.Models.Positions
+@model CVPlatform.Web.Models.Discussions.DiscussionPageViewModel
+
+@{
+    var discussionTitle = Html.T("Positions.Discussion");
+    ViewData["Title"] = Model.Position.Title + " - " + discussionTitle;
+    var currentUserId = User.GetUserId();
+    var lastId = Model.Posts.LastOrDefault()?.Id ?? 0;
+}
+
+<div class="page-header">
+    <div>
+        <a class="btn btn-outline-secondary btn-sm mb-2" asp-controller="Positions" asp-action="Index">
+            <i class="bi bi-arrow-left"></i> @Html.T("Positions.BackToList")
+        </a>
+        <h1>@Model.Position.Title</h1>
+    </div>
+</div>
+
+@await Html.PartialAsync("_PositionTabs", new PositionTabsViewModel(Model.Position.Id, "Discussion"))
+
+<div class="surface-card">
+    <div id="posts-container" class="discussion-posts"
+         data-position-id="@Model.Position.Id"
+         data-last-id="@lastId"
+         data-current-user-id="@currentUserId"
+         data-is-recruiter-or-admin="@((User.IsInRole("Recruiter") || User.IsInRole("Administrator")).ToString().ToLower())"
+         data-since-url="@Url.Action("Since", "Discussions")"
+         data-hub-url="@Url.Content("~/hubs/discussion")">
+        @if (!Model.Posts.Any())
+        {
+            <div class="empty-state" id="empty-state">
+                <i class="bi bi-chat-dots" style="font-size:1.6rem;"></i>
+                <p class="mb-0 mt-2">@Html.T("Discussions.Empty")</p>
+            </div>
+        }
+        @foreach (var post in Model.Posts)
+        {
+            <partial name="_DiscussionPost" model="post" />
+        }
+    </div>
+
+    <form method="post" asp-controller="Discussions" asp-action="Post" id="composer" class="discussion-composer">
+        <input type="hidden" name="positionId" value="@Model.Position.Id" />
+        <textarea name="content" class="form-control" rows="3" maxlength="4000" required
+                  placeholder="@Html.T("Discussions.Placeholder")"></textarea>
+        <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+            <span class="text-muted small">@Html.T("Discussions.SendHint")</span>
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="bi bi-send"></i> @Html.T("Discussions.Post")
+            </button>
+        </div>
+        <div id="composer-error" class="text-danger small mt-2" hidden data-default-message="@Html.T("Discussions.SendError")"></div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="~/js/discussion-live.js" asp-append-version="true"></script>
+}

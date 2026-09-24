@@ -1,0 +1,17 @@
+﻿@model CVPlatform.Web.Models.ErrorViewModel
+
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h2 class="text-danger">Something went wrong.</h2>
+<p>An unexpected error occurred while processing your request. Please try again, or contact support if the problem continues.</p>
+
+@if (Model.ShowRequestId)
+{
+    <p class="text-muted">
+        <small>Request ID: <code>@Model.RequestId</code></small>
+    </p>
+}
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Dashboard</a>

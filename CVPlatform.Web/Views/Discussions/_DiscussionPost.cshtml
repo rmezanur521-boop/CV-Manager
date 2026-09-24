@@ -1,0 +1,25 @@
+@model CVPlatform.Application.Discussions.DiscussionPostDto
+
+@{
+    var isOwn = Model.AuthorId == User.GetUserId();
+    var isRecruiterOrAdmin = User.IsInRole("Recruiter") || User.IsInRole("Administrator");
+    var initial = string.IsNullOrWhiteSpace(Model.AuthorName) ? "?" : Model.AuthorName.Trim().Substring(0, 1).ToUpper();
+}
+
+<div class="discussion-post @(isOwn ? "is-own" : "")" data-post-id="@Model.Id">
+    <div class="discussion-avatar">@initial</div>
+    <div class="discussion-bubble">
+        <div class="discussion-meta">
+            @if (isRecruiterOrAdmin && !string.IsNullOrEmpty(Model.AuthorId))
+            {
+                <a class="discussion-author text-decoration-none fw-semibold" href="@Url.Action("ViewProfile", "Profile", new { id = Model.AuthorId })">@Model.AuthorName</a>
+            }
+            else
+            {
+                <span class="discussion-author">@Model.AuthorName</span>
+            }
+            <time class="discussion-time" datetime="@Model.CreatedAt.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", System.Globalization.CultureInfo.InvariantCulture)">@Model.CreatedAt.ToString("dd MMM yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</time>
+        </div>
+        <div class="discussion-body">@Html.Markdown(Model.ContentMarkdown)</div>
+    </div>
+</div>

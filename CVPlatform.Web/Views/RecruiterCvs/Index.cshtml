@@ -1,0 +1,127 @@
+@model CVPlatform.Application.Cvs.CvSearchResultDto
+
+@{
+    ViewData["Title"] = "Browse CVs";
+    var result = Model.Cvs;
+
+    string SortLink(string column)
+    {
+        var newDesc = (string)ViewBag.SortBy == column ? !(bool)ViewBag.Desc : true;
+        return Url.Action("Index", new { positionId = ViewBag.PositionId, q = ViewBag.Query, sortBy = column, desc = newDesc })!;
+    }
+
+    string SortIcon(string column)
+    {
+        if ((string)ViewBag.SortBy != column)
+            return string.Empty;
+
+        var icon = (bool)ViewBag.Desc ? "bi-arrow-down" : "bi-arrow-up";
+        return $"<i class=\"bi {icon}\"></i>";
+    }
+}
+
+<div class="page-header">
+    <h1>@Html.T("RecruiterCvs.Title")</h1>
+</div>
+
+<div class="surface-card">
+    <form method="get" class="page-toolbar">
+        <div class="page-search">
+            <i class="bi bi-search"></i>
+            <input type="text" name="q" value="@ViewBag.Query" placeholder="@Html.T("RecruiterCvs.SearchPlaceholder")" />
+        </div>
+        <select name="positionId" class="form-select" style="width:auto" asp-items="ViewBag.Positions">
+            <option value="">@Html.T("RecruiterCvs.AllPositions")</option>
+        </select>
+        <button type="submit" class="btn btn-outline-secondary btn-sm">@Html.T("RecruiterCvs.Search")</button>
+        <div class="page-toolbar-actions">
+            <a class="icon-btn" href="@Url.Action("Index")" title="@Html.T("Common.Refresh")">
+                <i class="bi bi-arrow-clockwise"></i>
+            </a>
+        </div>
+    </form>
+
+    @if (!result.Items.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-person" style="font-size:1.6rem;"></i>
+            <p class="mb-0 mt-2">@Html.T("RecruiterCvs.NoResults")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="data-table" id="cvs-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th><a href="@SortLink("CandidateName")">@Html.T("RecruiterCvs.Candidate") @Html.Raw(SortIcon("CandidateName"))</a></th>
+                        <th><a href="@SortLink("PositionTitle")">@Html.T("RecruiterCvs.Position") @Html.Raw(SortIcon("PositionTitle"))</a></th>
+                        @foreach (var column in Model.Columns)
+                        {
+                            <th>@column.AttributeName</th>
+                        }
+                        <th><a href="@SortLink("PublishedAt")">@Html.T("Cvs.Published") @Html.Raw(SortIcon("PublishedAt"))</a></th>
+                        <th><a href="@SortLink("LikesCount")">@Html.T("RecruiterCvs.Likes") @Html.Raw(SortIcon("LikesCount"))</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in result.Items)
+                    {
+                        <tr data-id="@item.CvId" data-view-url="@Url.Action("View", new { id = item.CvId })" data-liked="@item.LikedByCurrentUser.ToString().ToLower()" data-likes-count="@item.LikesCount" class="cv-row selectable-row">
+                            <td onclick="event.stopPropagation()">
+                                <input type="radio" name="selectedCv" value="@item.CvId" class="form-check-input" />
+                            </td>
+                            <td class="fw-semibold">@item.CandidateName</td>
+                            <td>@item.PositionTitle</td>
+                            @foreach (var column in Model.Columns)
+                            {
+                                var value = item.AttributeValues[column.AttributeId];
+                                <td class="@(value.IsMissing ? "text-danger" : "")">@(value.IsMissing ? "-" : value.DisplayValue)</td>
+                            }
+                            <td>@item.PublishedAt?.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="badge @(item.LikedByCurrentUser ? "bg-primary" : "bg-light text-dark border")" id="row-like-badge-@item.CvId">
+                                    <i class="bi bi-hand-thumbs-up@(item.LikedByCurrentUser ? "-fill" : "")"></i>
+                                    <span class="row-like-count">@item.LikesCount</span>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="selection-bar">
+            <span class="hint" id="selection-hint">@Html.T("RecruiterCvs.SelectRowHint")</span>
+            <a class="btn btn-outline-secondary btn-sm disabled" id="view-cv-btn" href="#">
+                <i class="bi bi-eye"></i> @Html.T("RecruiterCvs.ViewCv")
+            </a>
+            <button type="button" class="btn btn-outline-primary btn-sm disabled" id="toolbar-like-btn">
+                <i class="bi bi-hand-thumbs-up" id="toolbar-like-icon"></i>
+                <span id="toolbar-like-label">Like</span>
+            </button>
+        </div>
+
+        var totalPages = (int)Math.Ceiling(result.TotalCount / (double)result.PageSize);
+
+        @if (totalPages > 1)
+        {
+            <nav class="mt-3">
+                <ul class="pagination mb-0">
+                    @for (var p = 1; p <= totalPages; p++)
+                    {
+                        <li class="page-item @(p == result.Page ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { positionId = ViewBag.PositionId, q = ViewBag.Query, sortBy = ViewBag.SortBy, desc = ViewBag.Desc, page = p })">@p</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/recruiter-cv-like.js"></script>
+    <script src="~/js/recruiter-cvs-toolbar.js"></script>
+}

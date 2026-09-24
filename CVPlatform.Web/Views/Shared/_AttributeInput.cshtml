@@ -1,0 +1,61 @@
+﻿@model CVPlatform.Web.Models.Shared.AttributeInputViewModel
+
+<div class="mb-3 p-2 border rounded attribute-row @(Model.IsMissing ? "border-danger" : "")"
+     data-attribute-id="@Model.AttributeId" data-version="@Model.Version" data-type="@Model.Type">
+    <label class="form-label">
+        @Model.AttributeName
+        @if (Model.IsRequired)
+        {
+            <span class="text-danger">*</span>
+        }
+    </label>
+
+    @switch (Model.Type)
+    {
+        case CVPlatform.Domain.Enums.AttributeType.MarkdownText:
+            <textarea class="form-control attribute-input" rows="4">@Model.TextValue</textarea>
+            break;
+
+        case CVPlatform.Domain.Enums.AttributeType.Numeric:
+            <input type="number" step="0.01" class="form-control attribute-input" value="@Model.NumericValue" />
+            break;
+
+        case CVPlatform.Domain.Enums.AttributeType.Date:
+            <input type="date" class="form-control attribute-input" value="@Model.DateValue?.ToString("yyyy-MM-dd")" />
+            break;
+
+        case CVPlatform.Domain.Enums.AttributeType.DateRange:
+            <div class="d-flex align-items-center gap-2">
+                <input type="date" class="form-control attribute-input"
+                       value="@Model.DateRangeStart?.ToString("yyyy-MM-dd")" />
+                <span>&ndash;</span>
+                <input type="date" class="form-control attribute-input"
+                       value="@Model.DateRangeEnd?.ToString("yyyy-MM-dd")" />
+            </div>
+             break;
+
+        case CVPlatform.Domain.Enums.AttributeType.Boolean:
+            <input type="checkbox" class="form-check-input attribute-input" @(Model.BooleanValue == true ? "checked" : "") />
+            break;
+
+        case CVPlatform.Domain.Enums.AttributeType.Dropdown:
+            <select class="form-select attribute-input" asp-items="Model.Options">
+                <option value="">-- select --</option>
+            </select>
+            break;
+
+        case CVPlatform.Domain.Enums.AttributeType.Image:
+            <input type="hidden" class="attribute-input" value="@Model.TextValue" />
+            <input type="file" class="form-control image-upload-input" accept="image/*"
+                   data-owner-id="" data-category="ProfileAttribute" />
+            @if (!string.IsNullOrWhiteSpace(Model.ImageDisplayUrl))
+            {
+                <img src="@Model.ImageDisplayUrl" style="max-width:150px" class="mt-2 d-block" />
+            }
+            break;
+
+        default:
+            <input type="text" class="form-control attribute-input" value="@Model.TextValue" />
+            break;
+    }
+</div>
