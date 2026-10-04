@@ -1,4 +1,4 @@
-﻿﻿
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,6 @@
                     <span>CV Manager</span>
                 </a>
                 <nav class="guest-nav">
-                    <a asp-controller="Positions" asp-action="Index">@Html.T("Nav.Positions")</a>
                 </nav>
                 <div class="guest-actions">
                     <a class="icon-btn" title="@Html.T("Common.DarkMode")" asp-controller="Settings" asp-action="SetTheme" asp-route-theme="@nextTheme" asp-route-returnUrl="@Context.Request.Path">
@@ -82,7 +81,7 @@
                         <nav class="sidebar-nav">
                             <ul class="nav flex-column">
                                 <li class="nav-item">
-                                    <a class="nav-link @(activeController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">
+                                    <a class="nav-link @(activeController == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
                                         <i class="bi bi-speedometer2"></i><span>@Html.T("Nav.Dashboard")</span>
                                     </a>
                                 </li>

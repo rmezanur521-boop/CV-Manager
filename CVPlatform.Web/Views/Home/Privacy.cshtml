@@ -1,6 +1,101 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = Html.T("Privacy.MetaTitle");
+    ViewData["MetaDescription"] = Html.T("Privacy.MetaDescription");
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="privacy-layout">
+    <div class="privacy-card">
+        <div class="privacy-header">
+            <h1>@Html.T("Privacy.PageTitle")</h1>
+            <div class="privacy-updated">@Html.T("Privacy.LastUpdated"): @DateTime.UtcNow.ToString("MMMM yyyy")</div>
+        </div>
+
+        <nav class="privacy-toc">
+            <div class="privacy-toc-title"><i class="bi bi-list-nested me-2"></i>@Html.T("Privacy.TocTitle")</div>
+            <ul class="privacy-toc-list">
+                <li><a class="privacy-toc-link" href="#data-collection">1. @Html.T("Privacy.Sec1Title")</a></li>
+                <li><a class="privacy-toc-link" href="#external-auth">2. @Html.T("Privacy.Sec2Title")</a></li>
+                <li><a class="privacy-toc-link" href="#data-usage">3. @Html.T("Privacy.Sec3Title")</a></li>
+                <li><a class="privacy-toc-link" href="#crm-sync">4. @Html.T("Privacy.Sec4Title")</a></li>
+                <li><a class="privacy-toc-link" href="#cookies">5. @Html.T("Privacy.Sec5Title")</a></li>
+                <li><a class="privacy-toc-link" href="#security">6. @Html.T("Privacy.Sec6Title")</a></li>
+                <li><a class="privacy-toc-link" href="#user-rights">7. @Html.T("Privacy.Sec7Title")</a></li>
+            </ul>
+        </nav>
+
+        <section class="privacy-section" id="data-collection">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-database-check"></i>
+                <span>1. @Html.T("Privacy.Sec1Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec1Intro")</p>
+            <ul class="privacy-list">
+                <li>@Html.T("Privacy.Sec1Item1")</li>
+                <li>@Html.T("Privacy.Sec1Item2")</li>
+                <li>@Html.T("Privacy.Sec1Item3")</li>
+                <li>@Html.T("Privacy.Sec1Item4")</li>
+                <li>@Html.T("Privacy.Sec1Item5")</li>
+            </ul>
+        </section>
+
+        <section class="privacy-section" id="external-auth">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-shield-lock"></i>
+                <span>2. @Html.T("Privacy.Sec2Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec2Body")</p>
+        </section>
+
+        <section class="privacy-section" id="data-usage">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-eye"></i>
+                <span>3. @Html.T("Privacy.Sec3Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec3Body")</p>
+            <ul class="privacy-list">
+                <li>@Html.T("Privacy.Sec3Item1")</li>
+                <li>@Html.T("Privacy.Sec3Item2")</li>
+                <li>@Html.T("Privacy.Sec3Item3")</li>
+            </ul>
+        </section>
+
+        <section class="privacy-section" id="crm-sync">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <span>4. @Html.T("Privacy.Sec4Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec4Body")</p>
+        </section>
+
+        <section class="privacy-section" id="cookies">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-cookie"></i>
+                <span>5. @Html.T("Privacy.Sec5Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec5Body")</p>
+            <ul class="privacy-list">
+                <li>@Html.T("Privacy.Sec5Item1")</li>
+                <li>@Html.T("Privacy.Sec5Item2")</li>
+                <li>@Html.T("Privacy.Sec5Item3")</li>
+            </ul>
+        </section>
+
+        <section class="privacy-section" id="security">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-lock"></i>
+                <span>6. @Html.T("Privacy.Sec6Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec6Body")</p>
+        </section>
+
+        <section class="privacy-section" id="user-rights">
+            <h2 class="privacy-section-title">
+                <i class="bi bi-person-check"></i>
+                <span>7. @Html.T("Privacy.Sec7Title")</span>
+            </h2>
+            <p class="privacy-text">@Html.T("Privacy.Sec7Body")</p>
+            <p class="privacy-text">@Html.T("Privacy.ContactUs"): <code>privacy@cvplatform.local</code></p>
+        </section>
+    </div>
+</div>

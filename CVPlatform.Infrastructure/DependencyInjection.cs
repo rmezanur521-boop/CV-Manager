@@ -7,6 +7,7 @@ using CVPlatform.Application.Discussions;
 using CVPlatform.Application.Positions;
 using CVPlatform.Application.Profile;
 using CVPlatform.Application.Projects;
+using CVPlatform.Application.PublicSite;
 using CVPlatform.Application.Search;
 using CVPlatform.Application.Users;
 using CVPlatform.Infrastructure.Identity;
@@ -50,6 +51,9 @@ public static class DependencyInjection
         services.AddScoped<IRecruiterCvService, RecruiterCvService>();
         services.AddScoped<IDiscussionService, DiscussionService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IRecruiterDashboardService, RecruiterDashboardService>();
+        services.AddScoped<ICandidateDashboardService, CandidateDashboardService>();
+        services.AddScoped<IPublicSiteService, PublicSiteService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IFileStorageService, MinioFileStorageService>();

@@ -1,4 +1,4 @@
-﻿using CVPlatform.Application.Common;
+using CVPlatform.Application.Common;
 using CVPlatform.Domain.Constants;
 using CVPlatform.Infrastructure.Identity;
 using CVPlatform.Web.Models.Account;
@@ -224,6 +224,6 @@ public class AccountController : Controller
     {
         return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
             ? LocalRedirect(returnUrl)
-            : RedirectToAction("Index", "Home");
+            : RedirectToAction("Index", "Dashboard");
     }
 }

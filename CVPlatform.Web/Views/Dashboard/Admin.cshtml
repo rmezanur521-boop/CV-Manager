@@ -1,0 +1,136 @@
+@using Microsoft.AspNetCore.Identity
+@model CVPlatform.Application.Dashboard.DashboardDto
+@{
+    ViewData["Title"] = Html.T("Nav.Dashboard");
+    var isRecruiter = User.IsInRole("Recruiter") || User.IsInRole("Administrator");
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1>@Html.T("Nav.Dashboard")</h1>
+    @if (User.IsInRole("Administrator"))
+    {
+        <a asp-controller="Dashboard" asp-action="Recruiter" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-briefcase me-1"></i>@Html.T("Nav.RecruiterDashboard")
+        </a>
+    }
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-info"><i class="bi bi-clock-history"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Stats.CvsCreatedLast24Hours</div>
+            <div class="stat-card-label">@Html.T("Dashboard.Cvs24h")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-primary"><i class="bi bi-briefcase"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Stats.TotalPositions</div>
+            <div class="stat-card-label">@Html.T("Dashboard.TotalPositions")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-success"><i class="bi bi-people"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Stats.TotalCandidates</div>
+            <div class="stat-card-label">@Html.T("Dashboard.TotalCandidates")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-warning"><i class="bi bi-person-badge"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Stats.TotalRecruiters</div>
+            <div class="stat-card-label">@Html.T("Dashboard.TotalRecruiters")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-primary"><i class="bi bi-file-earmark-text"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Stats.TotalSubmittedCvs</div>
+            <div class="stat-card-label">@Html.T("Dashboard.TotalCvs")</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-grid-2">
+    <div class="surface-card">
+        <div class="section-title">@Html.T("Dashboard.LatestPositions")</div>
+        @if (Model.LatestPositions.Any())
+        {
+            <table class="plain-table">
+                <thead>
+                    <tr>
+                        <th>@Html.T("Positions.Title")</th>
+                        <th>@Html.T("Positions.Company")</th>
+                        <th>@Html.T("Cvs.Created")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var position in Model.LatestPositions)
+                    {
+                        <tr>
+                            <td><a asp-controller="Positions" asp-action="Index">@position.Title</a></td>
+                            <td>@position.Company</td>
+                            <td>@position.CreatedAt.ToString("dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted mb-0">@Html.T("Dashboard.NoData")</p>
+        }
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("Dashboard.PopularPositions")</div>
+        @if (Model.PopularPositions.Any())
+        {
+            <table class="plain-table">
+                <thead>
+                    <tr>
+                        <th>@Html.T("Positions.Title")</th>
+                        <th>@Html.T("Dashboard.CvsSubmitted")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var position in Model.PopularPositions)
+                    {
+                        <tr>
+                            <td>@position.Title</td>
+                            <td>@position.CvCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted mb-0">@Html.T("Dashboard.NoData")</p>
+        }
+    </div>
+</div>
+
+<div class="surface-card">
+    <div class="section-title">@Html.T("Dashboard.TagCloud")</div>
+    @if (Model.TagCloud.Any())
+    {
+        <div class="tag-cloud">
+            @foreach (var tag in Model.TagCloud)
+            {
+                var fontSize = 0.8 + Math.Min(tag.UsageCount, 10) * 0.1;
+                var href = isRecruiter
+                    ? Url.Action("Index", "RecruiterCvs", new { q = tag.TagName })
+                    : Url.Action("Index", "Positions");
+
+                <a href="@href" style="font-size:@fontSize.ToString("0.0")rem">@tag.TagName</a>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted mb-0">@Html.T("Dashboard.NoData")</p>
+    }
+</div>

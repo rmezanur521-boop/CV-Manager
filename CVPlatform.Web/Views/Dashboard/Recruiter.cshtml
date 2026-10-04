@@ -1,0 +1,346 @@
+@model CVPlatform.Application.Dashboard.RecruiterDashboardDto
+@{
+    ViewData["Title"] = Html.T("RecruiterDashboard.PageTitle");
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1>@Html.T("RecruiterDashboard.PageTitle")</h1>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole("Administrator"))
+        {
+            <a asp-controller="Dashboard" asp-action="Admin" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-shield-check me-1"></i>@Html.T("Nav.AdminDashboard")
+            </a>
+        }
+        <a asp-controller="Positions" asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>@Html.T("Positions.New")
+        </a>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <a asp-controller="Positions" asp-action="Create" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-briefcase me-1"></i>@Html.T("RecruiterDashboard.ActionNewPosition")
+    </a>
+    <a asp-controller="RecruiterCvs" asp-action="Index" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-file-earmark-text me-1"></i>@Html.T("RecruiterDashboard.ActionBrowseCvs")
+    </a>
+    <a asp-controller="Attributes" asp-action="Index" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-diagram-3 me-1"></i>@Html.T("RecruiterDashboard.ActionAttributeLibrary")
+    </a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-primary"><i class="bi bi-briefcase"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.OpenPositions</div>
+            <div class="stat-card-label">@Html.T("RecruiterDashboard.KpiOpenPositions")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-success"><i class="bi bi-file-earmark-check"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.PublishedCvs</div>
+            <div class="stat-card-label">@Html.T("RecruiterDashboard.KpiPublishedCvs")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-info"><i class="bi bi-clock-history"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.NewCvsLast7Days</div>
+            <div class="stat-card-label">@Html.T("RecruiterDashboard.KpiNewCvs7Days")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-warning"><i class="bi bi-heart-fill"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.ShortlistedCount</div>
+            <div class="stat-card-label">@Html.T("RecruiterDashboard.KpiShortlisted")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-primary"><i class="bi bi-pencil-square"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.DraftCvs</div>
+            <div class="stat-card-label">@Html.T("RecruiterDashboard.KpiDraftCvs")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-danger"><i class="bi bi-exclamation-triangle"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.PositionsWithZeroCvs</div>
+            <div class="stat-card-label">@Html.T("RecruiterDashboard.KpiZeroCvsPositions")</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-grid-2 mb-4">
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterDashboard.TrendTitle")</div>
+        <div class="chart-card-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterDashboard.PipelineTitle")</div>
+        @if (Model.Pipeline.Any())
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var item in Model.Pipeline)
+                {
+                    var total = Math.Max(item.TotalCount, 1);
+                    var pubPct = (item.PublishedCount * 100) / total;
+                    var draftPct = (item.DraftCount * 100) / total;
+
+                    <div class="pipeline-item">
+                        <div class="pipeline-item-head">
+                            <span class="fw-semibold">@item.PositionTitle</span>
+                            <span class="text-muted">
+                                <span class="text-success fw-semibold">@item.PublishedCount</span> @Html.T("RecruiterDashboard.Published") /
+                                <span class="text-warning fw-semibold">@item.DraftCount</span> @Html.T("RecruiterDashboard.Draft")
+                            </span>
+                        </div>
+                        <div class="pipeline-bar-wrapper">
+                            <div class="pipeline-bar-pub" style="width: @pubPct%"></div>
+                            <div class="pipeline-bar-draft" style="width: @draftPct%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-bar-chart"></i></div>
+                <p class="mb-0">@Html.T("RecruiterDashboard.NoPipelineData")</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="content-grid-2 mb-4">
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterDashboard.LevelBreakdownTitle")</div>
+        @if (Model.LevelBreakdown.Any())
+        {
+            <table class="plain-table">
+                <thead>
+                    <tr>
+                        <th>@Html.T("Positions.Level")</th>
+                        <th>@Html.T("RecruiterDashboard.PositionsCount")</th>
+                        <th>@Html.T("RecruiterDashboard.CvsCount")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lvl in Model.LevelBreakdown)
+                    {
+                        <tr>
+                            <td><span class="level-badge">@lvl.LevelName</span></td>
+                            <td>@lvl.PositionCount</td>
+                            <td>@lvl.CvCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-diagram-2"></i></div>
+                <p class="mb-0">@Html.T("Dashboard.NoData")</p>
+            </div>
+        }
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterDashboard.ShortlistTitle")</div>
+        @if (Model.Shortlist.Any())
+        {
+            <table class="plain-table">
+                <thead>
+                    <tr>
+                        <th>@Html.T("RecruiterDashboard.Candidate")</th>
+                        <th>@Html.T("Positions.Title")</th>
+                        <th>@Html.T("RecruiterDashboard.LikedDate")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Shortlist)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.CandidateName</td>
+                            <td>@item.PositionTitle</td>
+                            <td>@item.LikedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">
+                                <a asp-controller="RecruiterCvs" asp-action="View" asp-route-id="@item.CvId" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-heart"></i></div>
+                <p class="mb-0">@Html.T("RecruiterDashboard.NoShortlistData")</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="content-grid-2 mb-4">
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterDashboard.LatestCvsTitle")</div>
+        @if (Model.LatestPublishedCvs.Any())
+        {
+            <table class="plain-table">
+                <thead>
+                    <tr>
+                        <th>@Html.T("RecruiterDashboard.Candidate")</th>
+                        <th>@Html.T("Positions.Title")</th>
+                        <th>@Html.T("Cvs.Published")</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cv in Model.LatestPublishedCvs)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@cv.CandidateName</td>
+                            <td>@cv.PositionTitle</td>
+                            <td>@cv.PublishedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">
+                                <a asp-controller="RecruiterCvs" asp-action="View" asp-route-id="@cv.CvId" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-person"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                <p class="mb-0">@Html.T("RecruiterDashboard.NoLatestCvs")</p>
+            </div>
+        }
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("RecruiterDashboard.RecentDiscussionsTitle")</div>
+        @if (Model.RecentDiscussions.Any())
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var post in Model.RecentDiscussions)
+                {
+                    <div class="p-2 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <a asp-controller="Discussions" asp-action="Index" asp-route-positionId="@post.PositionId" class="fw-semibold text-decoration-none">
+                                @post.PositionTitle
+                            </a>
+                            <small class="text-muted">@post.CreatedAt.ToString("dd MMM, HH:mm")</small>
+                        </div>
+                        <div class="small text-muted mb-1">
+                            <i class="bi bi-person me-1"></i>@post.AuthorName
+                        </div>
+                        <p class="small text-muted mb-0">@post.ContentSnippet</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-chat-square-text"></i></div>
+                <p class="mb-0">@Html.T("RecruiterDashboard.NoDiscussions")</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="surface-card mb-4">
+    <div class="section-title">@Html.T("RecruiterDashboard.TopTagsTitle")</div>
+    @if (Model.TopTags.Any())
+    {
+        <div class="tag-cloud">
+            @foreach (var tag in Model.TopTags)
+            {
+                var fontSize = 0.85 + Math.Min(tag.UsageCount, 10) * 0.08;
+                <a asp-controller="RecruiterCvs" asp-action="Index" asp-route-q="@tag.TagName" style="font-size:@fontSize.ToString("0.0")rem">
+                    @tag.TagName (@tag.UsageCount)
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-tags"></i></div>
+            <p class="mb-0">@Html.T("Dashboard.NoData")</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/dashboards.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend));
+            var labels = trendData.map(function (d) { return d.DateLabel; });
+            var values = trendData.map(function (d) { return d.Count; });
+
+            var style = getComputedStyle(document.body);
+            var primaryColor = style.getPropertyValue('--primary').trim() || '#4f5bd5';
+            var textColor = style.getPropertyValue('--text-muted').trim() || '#6b7094';
+            var borderColor = style.getPropertyValue('--card-border').trim() || '#e7e9f5';
+
+            var ctx = document.getElementById('trendChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '@Html.T("RecruiterDashboard.ChartLabel")',
+                            data: values,
+                            borderColor: primaryColor,
+                            backgroundColor: 'rgba(79, 91, 213, 0.1)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2,
+                            pointRadius: 2,
+                            pointHoverRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: borderColor },
+                                ticks: { color: textColor, maxTicksLimit: 10 }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: borderColor },
+                                ticks: { color: textColor, stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

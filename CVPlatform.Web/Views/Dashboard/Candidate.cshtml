@@ -1,0 +1,312 @@
+@model CVPlatform.Application.Dashboard.CandidateDashboardDto
+@{
+    ViewData["Title"] = Html.T("CandidateDashboard.PageTitle");
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1>@Html.T("CandidateDashboard.PageTitle")</h1>
+    <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-person me-1"></i>@Html.T("Nav.Profile")
+    </a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-primary"><i class="bi bi-file-earmark-person"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.TotalCvs</div>
+            <div class="stat-card-label">@Html.T("CandidateDashboard.KpiMyCvs")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-success"><i class="bi bi-check-circle"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.PublishedCvs</div>
+            <div class="stat-card-label">@Html.T("CandidateDashboard.KpiPublished")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-warning"><i class="bi bi-pencil"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.DraftCvs</div>
+            <div class="stat-card-label">@Html.T("CandidateDashboard.KpiDrafts")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-info"><i class="bi bi-folder"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.TotalProjects</div>
+            <div class="stat-card-label">@Html.T("CandidateDashboard.KpiProjects")</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon stat-icon-primary"><i class="bi bi-pie-chart"></i></div>
+        <div>
+            <div class="stat-card-value">@Model.Kpis.ProfileCompletenessPercentage%</div>
+            <div class="stat-card-label">@Html.T("CandidateDashboard.KpiCompleteness")</div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Kpis.TotalCvs == 0)
+{
+    <div class="surface-card mb-4">
+        <div class="section-title">
+            <i class="bi bi-stars text-primary me-2"></i>@Html.T("CandidateDashboard.OnboardingTitle")
+        </div>
+        <p class="text-muted mb-3">@Html.T("CandidateDashboard.OnboardingSubtitle")</p>
+        <div class="onboarding-stepper">
+            <div class="onboarding-step-card">
+                <div>
+                    <div class="onboarding-step-number">@Html.T("CandidateDashboard.Step1")</div>
+                    <div class="onboarding-step-title">@Html.T("CandidateDashboard.OnboardingStep1Title")</div>
+                    <div class="onboarding-step-desc">@Html.T("CandidateDashboard.OnboardingStep1Desc")</div>
+                </div>
+                <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                    @Html.T("CandidateDashboard.GoToProfile")
+                </a>
+            </div>
+            <div class="onboarding-step-card">
+                <div>
+                    <div class="onboarding-step-number">@Html.T("CandidateDashboard.Step2")</div>
+                    <div class="onboarding-step-title">@Html.T("CandidateDashboard.OnboardingStep2Title")</div>
+                    <div class="onboarding-step-desc">@Html.T("CandidateDashboard.OnboardingStep2Desc")</div>
+                </div>
+                <a asp-controller="Profile" asp-action="Projects" class="btn btn-outline-primary btn-sm">
+                    @Html.T("CandidateDashboard.AddProjects")
+                </a>
+            </div>
+            <div class="onboarding-step-card">
+                <div>
+                    <div class="onboarding-step-number">@Html.T("CandidateDashboard.Step3")</div>
+                    <div class="onboarding-step-title">@Html.T("CandidateDashboard.OnboardingStep3Title")</div>
+                    <div class="onboarding-step-desc">@Html.T("CandidateDashboard.OnboardingStep3Desc")</div>
+                </div>
+                <a asp-controller="Cvs" asp-action="Index" class="btn btn-primary btn-sm">
+                    @Html.T("CandidateDashboard.CreateFirstCv")
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="content-grid-2 mb-4">
+    <div class="surface-card completeness-card">
+        <div class="completeness-header">
+            <div class="section-title mb-0">@Html.T("CandidateDashboard.CompletenessTitle")</div>
+            <div class="completeness-pct">@Model.Kpis.ProfileCompletenessPercentage%</div>
+        </div>
+        <div class="completeness-meter">
+            <div class="completeness-fill" style="width: @Model.Kpis.ProfileCompletenessPercentage%"></div>
+        </div>
+
+        @if (Model.MissingItems.Any())
+        {
+            <div class="small fw-semibold text-muted mb-2">@Html.T("CandidateDashboard.ImproveProfilePrompt"):</div>
+            <div class="d-flex flex-column">
+                @foreach (var missing in Model.MissingItems)
+                {
+                    <div class="missing-item-row">
+                        <span><i class="bi bi-exclamation-circle text-warning me-2"></i>@Html.T(missing.ItemKey)</span>
+                        <a asp-controller="@missing.NavigationController" asp-action="@missing.NavigationAction" class="btn btn-outline-primary btn-sm py-0 px-2">
+                            @Html.T("CandidateDashboard.CompleteAction")
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="p-3 bg-success-subtle text-success rounded-3 mt-2 small d-flex align-items-center">
+                <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+                <span>@Html.T("CandidateDashboard.Profile100Percent")</span>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+        <div class="interest-signal-card">
+            <div class="interest-signal-icon">
+                <i class="bi bi-heart-fill"></i>
+            </div>
+            <div>
+                <div class="fs-4 fw-bold">@Model.TotalLikesReceived</div>
+                <div class="text-muted small">@Html.T("CandidateDashboard.LikesReceivedDesc")</div>
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="section-title mb-1">@Html.T("Crm.SyncToCrm")</div>
+            @if (Model.CrmStatus.IsSynced)
+            {
+                <div class="crm-status-box">
+                    <div>
+                        <div class="small fw-semibold text-success">
+                            <i class="bi bi-check-circle me-1"></i>@Html.T("Crm.SyncedStatus")
+                        </div>
+                        <div class="small text-muted">
+                            @Html.T("Crm.SyncedAt"): @Model.CrmStatus.SyncedAt?.ToString("dd MMM yyyy, HH:mm")
+                        </div>
+                    </div>
+                    <a asp-controller="Profile" asp-action="CrmSync" class="btn btn-outline-primary btn-sm">
+                        @Html.T("CandidateDashboard.ViewSync")
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="crm-status-box">
+                    <span class="small text-muted">@Html.T("CandidateDashboard.NotSyncedYet")</span>
+                    <a asp-controller="Profile" asp-action="CrmSync" class="btn btn-primary btn-sm">
+                        <i class="bi bi-cloud-arrow-up me-1"></i>@Html.T("Crm.Submit")
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="surface-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-0">@Html.T("CandidateDashboard.MyCvsTitle")</div>
+        <a asp-controller="Cvs" asp-action="Index" class="btn btn-outline-primary btn-sm">
+            @Html.T("CandidateDashboard.ManageAllCvs")
+        </a>
+    </div>
+
+    @if (Model.MyCvs.Any())
+    {
+        <table class="plain-table">
+            <thead>
+                <tr>
+                    <th>@Html.T("Positions.Title")</th>
+                    <th>@Html.T("Cvs.Status")</th>
+                    <th>@Html.T("Cvs.Created")</th>
+                    <th>@Html.T("CandidateDashboard.Requirements")</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cv in Model.MyCvs)
+                {
+                    <tr>
+                        <td class="fw-semibold">@cv.PositionTitle</td>
+                        <td>
+                            @if (cv.Status == CVPlatform.Domain.Enums.CvStatus.Published)
+                            {
+                                <span class="badge-soft-success">@Html.T("Cvs.Published")</span>
+                            }
+                            else
+                            {
+                                <span class="badge-soft-warning">@Html.T("CandidateDashboard.Draft")</span>
+                            }
+                        </td>
+                        <td>@cv.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (cv.Status == CVPlatform.Domain.Enums.CvStatus.Draft && cv.MissingRequiredAttributesCount > 0)
+                            {
+                                <span class="text-danger small">
+                                    <i class="bi bi-exclamation-circle me-1"></i>@cv.MissingRequiredAttributesCount @Html.T("CandidateDashboard.RequiredMissing")
+                                </span>
+                            }
+                            else if (cv.Status == CVPlatform.Domain.Enums.CvStatus.Draft)
+                            {
+                                <span class="text-success small">
+                                    <i class="bi bi-check2 me-1"></i>@Html.T("CandidateDashboard.ReadyToPublish")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">@Html.T("CandidateDashboard.PublishedLive")</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a asp-controller="Cvs" asp-action="Edit" asp-route-id="@cv.CvId" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-pencil me-1"></i>@Html.T("CandidateDashboard.EditCv")
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-file-earmark-plus"></i></div>
+            <p class="mb-2">@Html.T("CandidateDashboard.NoCvsYet")</p>
+            <a asp-controller="Cvs" asp-action="Index" class="btn btn-primary btn-sm">
+                @Html.T("CandidateDashboard.CreateFirstCv")
+            </a>
+        </div>
+    }
+</div>
+
+<div class="content-grid-2 mb-4">
+    <div class="surface-card">
+        <div class="section-title">@Html.T("CandidateDashboard.AvailablePositionsTitle")</div>
+        @if (Model.AvailablePositions.Any())
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var pos in Model.AvailablePositions)
+                {
+                    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                        <div>
+                            <div class="fw-semibold">@pos.Title</div>
+                            <div class="small text-muted">
+                                @if (!string.IsNullOrWhiteSpace(pos.Company))
+                                {
+                                    <span class="me-2"><i class="bi bi-building me-1"></i>@pos.Company</span>
+                                }
+                                @if (pos.Level.HasValue)
+                                {
+                                    <span class="badge-soft-success">@pos.Level.Value</span>
+                                }
+                            </div>
+                        </div>
+                        <a asp-controller="Cvs" asp-action="Create" asp-route-positionId="@pos.PositionId" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg me-1"></i>@Html.T("Cvs.Create")
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-briefcase"></i></div>
+                <p class="mb-0">@Html.T("CandidateDashboard.NoAvailablePositions")</p>
+            </div>
+        }
+    </div>
+
+    <div class="surface-card">
+        <div class="section-title">@Html.T("CandidateDashboard.MyTopTagsTitle")</div>
+        @if (Model.MyTopTags.Any())
+        {
+            <div class="tag-cloud">
+                @foreach (var tag in Model.MyTopTags)
+                {
+                    var fontSize = 0.85 + Math.Min(tag.UsageCount, 10) * 0.08;
+                    <span style="font-size:@fontSize.ToString("0.0")rem">
+                        @tag.TagName (@tag.UsageCount)
+                    </span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-tags"></i></div>
+                <p class="mb-2">@Html.T("CandidateDashboard.NoTagsYet")</p>
+                <a asp-controller="Profile" asp-action="Projects" class="btn btn-outline-primary btn-sm">
+                    @Html.T("CandidateDashboard.AddProjectTags")
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/dashboards.css" />
+}
