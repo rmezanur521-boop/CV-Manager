@@ -1,11 +1,16 @@
-﻿@model CVPlatform.Web.Models.Profile.MeViewModel
+@model CVPlatform.Web.Models.Profile.MeViewModel
 @{
     ViewData["Title"] = "My Profile";
     var summary = (CVPlatform.Web.Models.Profile.ProfileSummaryViewModel)ViewBag.Summary;
 }
 
-<div class="page-header">
+<div class="page-header justify-content-between">
     <h1>@Html.T("Profile.Me")</h1>
+    <div class="header-actions">
+        <a class="btn btn-outline-primary" asp-action="CrmSync" asp-route-id="@ViewBag.TargetId">
+            <i class="bi bi-cloud-arrow-up"></i> @Html.T("Crm.SyncToCrm")
+        </a>
+    </div>
 </div>
 
 <div class="profile-grid">

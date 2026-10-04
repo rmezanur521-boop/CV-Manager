@@ -1,11 +1,12 @@
-﻿namespace CVPlatform.Application.Profile;
+namespace CVPlatform.Application.Profile;
 
 public record MeDto(
     string FirstName,
     string LastName,
     string? Location,
     string? PhotoUrl,
-    string ConcurrencyStamp);
+    string ConcurrencyStamp,
+    string? Email = null);
 
 public class UpdateMeRequest
 {

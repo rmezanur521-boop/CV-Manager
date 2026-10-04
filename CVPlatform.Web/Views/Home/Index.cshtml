@@ -1,5 +1,5 @@
-﻿@model CVPlatform.Application.Dashboard.DashboardDto
-
+﻿@using Microsoft.AspNetCore.Identity
+@model CVPlatform.Application.Dashboard.DashboardDto
 @{
     ViewData["Title"] = "Dashboard";
     var isRecruiter = User.IsInRole("Recruiter") || User.IsInRole("Administrator");

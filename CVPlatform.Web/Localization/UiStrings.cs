@@ -1,4 +1,4 @@
-﻿namespace CVPlatform.Web.Localization;
+namespace CVPlatform.Web.Localization;
 
 public static class UiStrings
 {
@@ -107,6 +107,21 @@ public static class UiStrings
             ["Profile.EditProjectTitle"] = "Edit Project",
             ["Profile.SelectAttributePrompt"] = "-- select an attribute --",
             ["Profile.BackToProjects"] = "Back to Projects",
+
+            ["Crm.SyncToCrm"] = "Sync to CRM",
+            ["Crm.Company"] = "Company",
+            ["Crm.JobTitle"] = "Job Title",
+            ["Crm.Phone"] = "Phone",
+            ["Crm.Email"] = "Email",
+            ["Crm.MarketingOptIn"] = "Receive marketing communications",
+            ["Crm.Submit"] = "Sync to Salesforce",
+            ["Crm.AlreadySynced"] = "Previously Synced to Salesforce",
+            ["Crm.SyncedStatus"] = "Synced",
+            ["Crm.AccountId"] = "Salesforce Account ID",
+            ["Crm.ContactId"] = "Salesforce Contact ID",
+            ["Crm.SyncedAt"] = "Last Synced At",
+            ["Crm.SyncSuccess"] = "Successfully synced to Salesforce! Account ID: {0}, Contact ID: {1}",
+            ["Crm.SyncFailed"] = "Failed to sync to Salesforce.",
 
             ["Cvs.Title"] = "My CVs",
             ["Cvs.New"] = "New CV",
@@ -320,6 +335,21 @@ public static class UiStrings
             ["Profile.EditProjectTitle"] = "প্রজেক্ট সম্পাদনা",
             ["Profile.SelectAttributePrompt"] = "-- একটি অ্যাট্রিবিউট নির্বাচন করো --",
             ["Profile.BackToProjects"] = "প্রজেক্টে ফিরে যাও",
+
+            ["Crm.SyncToCrm"] = "সিআরএম-এ সিঙ্ক করুন",
+            ["Crm.Company"] = "কোম্পানি",
+            ["Crm.JobTitle"] = "কাজের পদবী",
+            ["Crm.Phone"] = "ফোন",
+            ["Crm.Email"] = "ইমেইল",
+            ["Crm.MarketingOptIn"] = "মার্কেটিং যোগাযোগ পেতে সম্মত",
+            ["Crm.Submit"] = "সেলসফোর্সে সিঙ্ক করুন",
+            ["Crm.AlreadySynced"] = "পূর্বে সেলসফোর্সে সিঙ্ক করা হয়েছে",
+            ["Crm.SyncedStatus"] = "সিঙ্ক হয়েছে",
+            ["Crm.AccountId"] = "সেলসফোর্স অ্যাকাউন্ট আইডি",
+            ["Crm.ContactId"] = "সেলসফোর্স কন্টাক্ট আইডি",
+            ["Crm.SyncedAt"] = "সর্বশেষ সিঙ্কের সময়",
+            ["Crm.SyncSuccess"] = "সফলভাবে সেলসফোর্সে সিঙ্ক হয়েছে! অ্যাকাউন্ট আইডি: {0}, কন্টাক্ট আইডি: {1}",
+            ["Crm.SyncFailed"] = "সেলসফোর্সে সিঙ্ক করতে ব্যর্থ হয়েছে।",
 
             ["Cvs.Title"] = "আমার সিভি",
             ["Cvs.New"] = "নতুন সিভি",

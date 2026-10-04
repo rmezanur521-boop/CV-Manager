@@ -1,0 +1,102 @@
+@model CVPlatform.Web.Models.Profile.CrmSyncViewModel
+@{
+    ViewData["Title"] = Html.T("Crm.SyncToCrm");
+    var summary = ViewBag.Summary as CVPlatform.Web.Models.Profile.ProfileSummaryViewModel;
+    var targetId = ViewBag.TargetId as string;
+    var routeId = targetId == User.GetUserId() ? null : targetId;
+}
+
+<div class="page-header justify-content-between">
+    <h1>@Html.T("Crm.SyncToCrm")</h1>
+    <div class="header-actions">
+        <a class="btn btn-outline-secondary" asp-action="Index" asp-route-id="@routeId">@Html.T("Common.Cancel")</a>
+    </div>
+</div>
+
+@if (TempData["Success"] is not null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="profile-grid">
+    @if (summary is not null)
+    {
+        @await Html.PartialAsync("_ProfileSummaryCard", summary)
+    }
+
+    <div class="surface-card">
+        @if (Model.IsAlreadySynced)
+        {
+            <div class="mb-4 p-3 rounded" style="background: var(--bg-hover); border: 1px solid var(--card-border);">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="mb-0"><i class="bi bi-check-circle-fill text-success"></i> @Html.T("Crm.AlreadySynced")</h5>
+                    <span class="badge-soft-success">@Html.T("Crm.SyncedStatus")</span>
+                </div>
+                <div class="small text-muted mb-1">
+                    <strong>@Html.T("Crm.AccountId"):</strong> @Model.LastSyncedSalesforceAccountId
+                </div>
+                <div class="small text-muted mb-1">
+                    <strong>@Html.T("Crm.ContactId"):</strong> @Model.LastSyncedSalesforceContactId
+                </div>
+                <div class="small text-muted">
+                    <strong>@Html.T("Crm.SyncedAt"):</strong> @Model.LastSyncedAt?.ToString("g")
+                </div>
+            </div>
+        }
+
+        <form asp-action="CrmSync" asp-route-id="@routeId" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="TargetId" value="@targetId" />
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="form-grid mb-3">
+                <div class="field">
+                    <label>@Html.T("Profile.FirstName")</label>
+                    <input class="form-control" value="@Model.FirstName" readonly />
+                </div>
+                <div class="field">
+                    <label>@Html.T("Profile.LastName")</label>
+                    <input class="form-control" value="@Model.LastName" readonly />
+                </div>
+                <div class="field">
+                    <label>@Html.T("Crm.Email")</label>
+                    <input class="form-control" value="@Model.Email" readonly />
+                </div>
+            </div>
+
+            <div class="form-grid mb-3">
+                <div class="field">
+                    <label asp-for="Company">@Html.T("Crm.Company")</label>
+                    <input asp-for="Company" class="form-control" />
+                    <span asp-validation-for="Company" class="text-danger"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="JobTitle">@Html.T("Crm.JobTitle")</label>
+                    <input asp-for="JobTitle" class="form-control" />
+                    <span asp-validation-for="JobTitle" class="text-danger"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="Phone">@Html.T("Crm.Phone")</label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-check mb-4">
+                <input asp-for="MarketingOptIn" class="form-check-input" type="checkbox" id="marketingOptInCheck" />
+                <label class="form-check-label" for="marketingOptInCheck">
+                    @Html.T("Crm.MarketingOptIn")
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cloud-arrow-up"></i> @Html.T("Crm.Submit")
+            </button>
+        </form>
+    </div>
+</div>

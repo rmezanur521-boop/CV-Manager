@@ -1,5 +1,6 @@
-﻿using CVPlatform.Application.Attributes;
+using CVPlatform.Application.Attributes;
 using CVPlatform.Application.Common;
+using CVPlatform.Application.Crm;
 using CVPlatform.Application.Cvs;
 using CVPlatform.Application.Dashboard;
 using CVPlatform.Application.Discussions;
@@ -52,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IFileStorageService, MinioFileStorageService>();
+        services.Configure<SalesforceOptions>(configuration.GetSection("Salesforce"));
+        services.AddHttpClient<ISalesforceService, SalesforceService>();
         var smtpUsername = configuration["Smtp:Username"];
         var smtpConfigured = !string.IsNullOrWhiteSpace(smtpUsername) && !smtpUsername.StartsWith("PUT_");
 

@@ -1,4 +1,4 @@
-﻿using CVPlatform.Application.Common.Exceptions;
+using CVPlatform.Application.Common.Exceptions;
 using CVPlatform.Application.Profile;
 using CVPlatform.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +44,6 @@ public class ProfileService : IProfileService
 
     private static MeDto ToDto(ApplicationUser user)
     {
-        return new MeDto(user.FirstName, user.LastName, user.Location, user.PhotoUrl, user.ConcurrencyStamp);
+        return new MeDto(user.FirstName, user.LastName, user.Location, user.PhotoUrl, user.ConcurrencyStamp ?? string.Empty, user.Email);
     }
 }

@@ -1,4 +1,4 @@
-﻿using CVPlatform.Domain.Entities;
+using CVPlatform.Domain.Entities;
 using CVPlatform.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +27,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<PositionAttribute> PositionAttributes => Set<PositionAttribute>();
     public DbSet<AttributeUsage> AttributeUsages => Set<AttributeUsage>();
     public DbSet<FileAsset> FileAssets => Set<FileAsset>();
+    public DbSet<CrmSyncRecord> CrmSyncRecords => Set<CrmSyncRecord>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
