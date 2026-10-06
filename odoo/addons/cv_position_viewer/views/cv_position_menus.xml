@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_cv_position_root" name="CV Positions" sequence="50" />
+    <menuitem id="menu_cv_position_list" name="Positions" parent="menu_cv_position_root" action="action_cv_position" sequence="10" />
+    <menuitem id="menu_cv_position_import" name="Import Position" parent="menu_cv_position_root" action="action_cv_position_import_wizard" sequence="20" />
+</odoo>

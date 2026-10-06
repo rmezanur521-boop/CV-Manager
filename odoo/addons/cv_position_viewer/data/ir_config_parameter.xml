@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="config_cv_position_api_base_url" model="ir.config_parameter">
+        <field name="key">cv_position_viewer.api_base_url</field>
+        <field name="value">https://host.docker.internal:7052</field>
+    </record>
+</odoo>

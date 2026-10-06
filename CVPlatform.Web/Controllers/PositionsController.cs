@@ -1,4 +1,4 @@
-﻿using CVPlatform.Application.Attributes;
+using CVPlatform.Application.Attributes;
 using CVPlatform.Application.Common.Exceptions;
 using CVPlatform.Application.Positions;
 using CVPlatform.Domain.Constants;
@@ -15,11 +15,16 @@ public class PositionsController : Controller
 {
     private readonly IPositionService _positionService;
     private readonly IAttributeService _attributeService;
+    private readonly IPositionApiTokenService _tokenService;
 
-    public PositionsController(IPositionService positionService, IAttributeService attributeService)
+    public PositionsController(
+        IPositionService positionService,
+        IAttributeService attributeService,
+        IPositionApiTokenService tokenService)
     {
         _positionService = positionService;
         _attributeService = attributeService;
+        _tokenService = tokenService;
     }
 
     [AllowAnonymous]
@@ -96,6 +101,7 @@ public class PositionsController : Controller
             AttributeCatalog = await GetAttributeCatalogAsync()
         };
 
+        ViewBag.ApiTokenStatus = await _tokenService.GetStatusAsync(id);
         return View(vm);
     }
 
@@ -106,6 +112,7 @@ public class PositionsController : Controller
         if (!ModelState.IsValid)
         {
             vm.AttributeCatalog = await GetAttributeCatalogAsync();
+            ViewBag.ApiTokenStatus = await _tokenService.GetStatusAsync(vm.Id);
             return View(vm);
         }
 
@@ -121,10 +128,28 @@ public class PositionsController : Controller
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             vm.AttributeCatalog = await GetAttributeCatalogAsync();
+            ViewBag.ApiTokenStatus = await _tokenService.GetStatusAsync(vm.Id);
             return View(vm);
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateToken(int id)
+    {
+        var token = await _tokenService.GenerateAsync(id, User.GetUserId());
+        TempData["GeneratedToken"] = token.PlainToken;
+        return RedirectToAction(nameof(Edit), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RevokeToken(int id)
+    {
+        await _tokenService.RevokeAsync(id);
+        return RedirectToAction(nameof(Edit), new { id });
     }
 
     [HttpPost]

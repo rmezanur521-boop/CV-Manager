@@ -1,0 +1,61 @@
+<div class="modal fade" id="supportTicketModal" tabindex="-1" aria-labelledby="supportTicketModalLabel" aria-hidden="true"
+     data-rate-limit-msg="@Html.T("Support.RateLimitMessage")"
+     data-success-msg="@Html.T("Support.SuccessMessage")"
+     data-error-msg="@Html.T("Support.ErrorMessage")"
+     data-submitting-text="@Html.T("Support.Submitting")"
+     data-context-none="@Html.T("Support.ContextNone")">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="supportTicketModalLabel">
+                    <i class="bi bi-question-circle me-2 text-primary"></i>@Html.T("Support.ModalTitle")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="supportTicketAlert" class="alert d-none mb-3" role="alert"></div>
+
+                <div class="p-2 mb-3 bg-light rounded border border-light-subtle small text-muted" id="supportContextDisplay">
+                    <div class="d-flex align-items-center mb-1 text-truncate">
+                        <strong class="me-2 text-secondary">@Html.T("Support.ContextPage")</strong>
+                        <span id="supportContextPageText" class="text-truncate"></span>
+                    </div>
+                    <div class="d-flex align-items-center text-truncate">
+                        <strong class="me-2 text-secondary">@Html.T("Support.ContextPosition")</strong>
+                        <span id="supportContextPositionText" class="text-truncate">@Html.T("Support.ContextNone")</span>
+                    </div>
+                </div>
+
+                <form id="supportTicketForm" method="post" asp-controller="Support" asp-action="Create">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="supportPageUrl" name="PageUrl" value="" />
+                    <input type="hidden" id="supportPositionId" name="PositionId" value="" />
+
+                    <div class="mb-3">
+                        <label class="form-label" for="supportPriority">@Html.T("Support.Priority")</label>
+                        <select class="form-select" id="supportPriority" name="Priority">
+                            <option value="Average" selected>@Html.T("Support.PriorityAverage")</option>
+                            <option value="High">@Html.T("Support.PriorityHigh")</option>
+                            <option value="Low">@Html.T("Support.PriorityLow")</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0" for="supportSummary">@Html.T("Support.Summary")</label>
+                            <span class="small text-muted" id="supportCharCounter">0 / 500</span>
+                        </div>
+                        <textarea class="form-control" id="supportSummary" name="Summary" rows="4" minlength="5" maxlength="500" placeholder="@Html.T("Support.SummaryPlaceholder")" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Html.T("Support.Cancel")</button>
+                <button type="submit" form="supportTicketForm" class="btn btn-primary" id="supportSubmitBtn">
+                    <span class="spinner-border spinner-border-sm me-1 d-none" id="supportSubmitSpinner" role="status" aria-hidden="true"></span>
+                    <span id="supportSubmitText">@Html.T("Support.Submit")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

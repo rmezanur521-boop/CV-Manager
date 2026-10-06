@@ -28,6 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<AttributeUsage> AttributeUsages => Set<AttributeUsage>();
     public DbSet<FileAsset> FileAssets => Set<FileAsset>();
     public DbSet<CrmSyncRecord> CrmSyncRecords => Set<CrmSyncRecord>();
+    public DbSet<PositionApiToken> PositionApiTokens => Set<PositionApiToken>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

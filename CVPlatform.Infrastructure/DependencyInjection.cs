@@ -9,6 +9,7 @@ using CVPlatform.Application.Profile;
 using CVPlatform.Application.Projects;
 using CVPlatform.Application.PublicSite;
 using CVPlatform.Application.Search;
+using CVPlatform.Application.Support;
 using CVPlatform.Application.Users;
 using CVPlatform.Infrastructure.Identity;
 using CVPlatform.Infrastructure.Persistence;
@@ -54,11 +55,16 @@ public static class DependencyInjection
         services.AddScoped<IRecruiterDashboardService, RecruiterDashboardService>();
         services.AddScoped<ICandidateDashboardService, CandidateDashboardService>();
         services.AddScoped<IPublicSiteService, PublicSiteService>();
+        services.AddScoped<IPositionApiTokenService, PositionApiTokenService>();
+        services.AddScoped<IPositionAggregateService, PositionAggregateService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IFileStorageService, MinioFileStorageService>();
         services.Configure<SalesforceOptions>(configuration.GetSection("Salesforce"));
         services.AddHttpClient<ISalesforceService, SalesforceService>();
+        services.Configure<DropboxOptions>(configuration.GetSection("Dropbox"));
+        services.AddHttpClient<IFileUploader, DropboxFileUploader>();
+        services.AddScoped<ISupportTicketService, SupportTicketService>();
         var smtpUsername = configuration["Smtp:Username"];
         var smtpConfigured = !string.IsNullOrWhiteSpace(smtpUsername) && !smtpUsername.StartsWith("PUT_");
 
