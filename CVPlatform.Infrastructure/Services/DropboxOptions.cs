@@ -7,4 +7,5 @@ public class DropboxOptions
     public string RefreshToken { get; set; } = string.Empty;
     public string FolderPath { get; set; } = "/CVPlatform/SupportTickets";
     public string? SupportFallbackEmail { get; set; }
+    public string? SupportTicketWebhookUrl { get; set; }
 }

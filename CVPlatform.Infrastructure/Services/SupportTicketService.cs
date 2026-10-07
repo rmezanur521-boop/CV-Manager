@@ -21,6 +21,7 @@ public class SupportTicketService : ISupportTicketService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ApplicationDbContext _db;
     private readonly IFileUploader _fileUploader;
+    private readonly ISupportTicketWebhookNotifier _webhookNotifier;
     private readonly DropboxOptions _dropboxOptions;
     private readonly ILogger<SupportTicketService> _logger;
 
@@ -28,12 +29,14 @@ public class SupportTicketService : ISupportTicketService
         UserManager<ApplicationUser> userManager,
         ApplicationDbContext db,
         IFileUploader fileUploader,
+        ISupportTicketWebhookNotifier webhookNotifier,
         IOptions<DropboxOptions> dropboxOptions,
         ILogger<SupportTicketService> logger)
     {
         _userManager = userManager;
         _db = db;
         _fileUploader = fileUploader;
+        _webhookNotifier = webhookNotifier;
         _dropboxOptions = dropboxOptions.Value;
         _logger = logger;
     }
@@ -127,6 +130,15 @@ public class SupportTicketService : ISupportTicketService
         {
             _logger.LogError("Failed to upload support ticket {TicketId} to Dropbox: {ErrorCode}", ticketId, uploadResult.ErrorCode);
             return new SupportTicketResult(false, null, uploadResult.ErrorCode);
+        }
+
+        try
+        {
+            await _webhookNotifier.NotifyAsync(jsonContent, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to dispatch webhook notification for ticket {TicketId}", ticketId);
         }
 
         return new SupportTicketResult(true, shortTicketId);

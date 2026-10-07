@@ -30,18 +30,22 @@ public class DropboxFileUploader : IFileUploader
 
     public async Task<FileUploadResult> UploadJsonAsync(string fileName, string jsonContent, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(_options.AppKey) ||
-            string.IsNullOrWhiteSpace(_options.AppSecret) ||
-            string.IsNullOrWhiteSpace(_options.RefreshToken) ||
-            _options.AppKey.StartsWith("PUT_") ||
-            _options.AppSecret.StartsWith("PUT_") ||
-            _options.RefreshToken.StartsWith("PUT_"))
+        var appKey = _options.AppKey?.Trim() ?? string.Empty;
+        var appSecret = _options.AppSecret?.Trim() ?? string.Empty;
+        var refreshToken = _options.RefreshToken?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(appKey) ||
+            string.IsNullOrWhiteSpace(appSecret) ||
+            string.IsNullOrWhiteSpace(refreshToken) ||
+            appKey.StartsWith("PUT_") ||
+            appSecret.StartsWith("PUT_") ||
+            refreshToken.StartsWith("PUT_"))
         {
             _logger.LogWarning("Dropbox credentials are not configured.");
             return new FileUploadResult(false, null, "DROPBOX_NOT_CONFIGURED");
         }
 
-        var folder = string.IsNullOrWhiteSpace(_options.FolderPath) ? "/CVPlatform/SupportTickets" : _options.FolderPath.TrimEnd('/');
+        var folder = string.IsNullOrWhiteSpace(_options.FolderPath) ? "/CVPlatform/SupportTickets" : _options.FolderPath.Trim().TrimEnd('/');
         var remotePath = $"{folder}/{fileName}";
 
         var token = await GetValidAccessTokenAsync(forceRefresh: false, ct);
@@ -92,12 +96,14 @@ public class DropboxFileUploader : IFileUploader
                 return new FileUploadResult(true, remotePath);
             }
 
+            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogError("Dropbox upload failed with status code {StatusCode}: {ErrorBody}", (int)response.StatusCode, errorBody);
+
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 return new FileUploadResult(false, null, "UNAUTHORIZED");
             }
 
-            _logger.LogError("Dropbox upload failed with status code {StatusCode}.", (int)response.StatusCode);
             return new FileUploadResult(false, null, "DROPBOX_UPLOAD_FAILED");
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -121,20 +127,26 @@ public class DropboxFileUploader : IFileUploader
                 return _cachedAccessToken;
             }
 
+            var appKey = _options.AppKey?.Trim() ?? string.Empty;
+            var appSecret = _options.AppSecret?.Trim() ?? string.Empty;
+            var refreshToken = _options.RefreshToken?.Trim() ?? string.Empty;
+
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.dropboxapi.com/oauth2/token");
+
             var form = new Dictionary<string, string>
             {
                 ["grant_type"] = "refresh_token",
-                ["refresh_token"] = _options.RefreshToken,
-                ["client_id"] = _options.AppKey,
-                ["client_secret"] = _options.AppSecret
+                ["refresh_token"] = refreshToken,
+                ["client_id"] = appKey,
+                ["client_secret"] = appSecret
             };
             request.Content = new FormUrlEncodedContent(form);
 
             using var response = await _httpClient.SendAsync(request, ct);
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("Dropbox token refresh failed with status code {StatusCode}.", (int)response.StatusCode);
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError("Dropbox token refresh failed with status code {StatusCode}: {ErrorBody}", (int)response.StatusCode, errorBody);
                 _cachedAccessToken = null;
                 return null;
             }

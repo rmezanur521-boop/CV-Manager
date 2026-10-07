@@ -64,6 +64,7 @@ public static class DependencyInjection
         services.AddHttpClient<ISalesforceService, SalesforceService>();
         services.Configure<DropboxOptions>(configuration.GetSection("Dropbox"));
         services.AddHttpClient<IFileUploader, DropboxFileUploader>();
+        services.AddHttpClient<ISupportTicketWebhookNotifier, SupportTicketWebhookNotifier>();
         services.AddScoped<ISupportTicketService, SupportTicketService>();
         var smtpUsername = configuration["Smtp:Username"];
         var smtpConfigured = !string.IsNullOrWhiteSpace(smtpUsername) && !smtpUsername.StartsWith("PUT_");
