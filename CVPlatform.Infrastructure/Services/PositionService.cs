@@ -1,4 +1,4 @@
-﻿using CVPlatform.Application.Common.Exceptions;
+using CVPlatform.Application.Common.Exceptions;
 using CVPlatform.Application.Positions;
 using CVPlatform.Domain.Entities;
 using CVPlatform.Infrastructure.Persistence;
@@ -17,7 +17,7 @@ public class PositionService : IPositionService
 
     public async Task<IReadOnlyList<PositionDto>> GetAllAsync(string? search = null)
     {
-        var query = LoadFullQuery();
+        var query = _db.Positions.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -26,26 +26,66 @@ public class PositionService : IPositionService
                 || (p.Company != null && EF.Functions.Like(p.Company, $"%{term}%")));
         }
 
-        var positions = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
+        var positions = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new
+            {
+                p.Id,
+                p.Title,
+                p.ShortDescription,
+                p.Company,
+                p.Level,
+                p.AccessMode,
+                p.CreatedAt,
+                p.Version,
+                MaxProjects = p.ProjectFilter != null ? p.ProjectFilter.MaxProjects : 0
+            })
+            .ToListAsync();
+
         var positionIds = positions.Select(p => p.Id).ToList();
 
-        var cvCounts = await _db.Cvs
-            .Where(c => positionIds.Contains(c.PositionId))
-            .GroupBy(c => c.PositionId)
-            .Select(g => new { PositionId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(g => g.PositionId, g => g.Count);
+        var cvCounts = positionIds.Count == 0
+            ? new Dictionary<int, int>()
+            : await _db.Cvs
+                .AsNoTracking()
+                .Where(c => positionIds.Contains(c.PositionId))
+                .GroupBy(c => c.PositionId)
+                .Select(g => new { PositionId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.PositionId, g => g.Count);
 
         return positions
-            .Select(p => MapToDto(p, cvCounts.GetValueOrDefault(p.Id)))
+            .Select(p => new PositionDto(
+                p.Id,
+                p.Title,
+                p.ShortDescription,
+                p.Company,
+                p.Level,
+                p.AccessMode,
+                p.CreatedAt,
+                p.Version,
+                Array.Empty<PositionAttributeDto>(),
+                Array.Empty<PositionAccessRuleDto>(),
+                p.MaxProjects,
+                Array.Empty<string>(),
+                cvCounts.GetValueOrDefault(p.Id, 0)))
             .ToList();
+    }
+
+    public async Task<IReadOnlyList<PositionLookupDto>> GetLookupAsync()
+    {
+        return await _db.Positions
+            .AsNoTracking()
+            .OrderBy(p => p.Title)
+            .Select(p => new PositionLookupDto(p.Id, p.Title))
+            .ToListAsync();
     }
 
     public async Task<PositionDto> GetByIdAsync(int id)
     {
-        var position = await LoadFullQuery().FirstOrDefaultAsync(p => p.Id == id)
+        var position = await LoadFullQuery().AsNoTracking().FirstOrDefaultAsync(p => p.Id == id)
             ?? throw new NotFoundException($"Position {id} was not found.");
 
-        var cvCount = await _db.Cvs.CountAsync(c => c.PositionId == id);
+        var cvCount = await _db.Cvs.AsNoTracking().CountAsync(c => c.PositionId == id);
         var dto = MapToDto(position, cvCount);
 
         var optionIds = dto.AccessRules
@@ -57,6 +97,7 @@ public class PositionService : IPositionService
             return dto;
 
         var labels = await _db.AttributeOptions
+            .AsNoTracking()
             .Where(o => optionIds.Contains(o.Id))
             .ToDictionaryAsync(o => o.Id, o => o.Value);
 
@@ -212,6 +253,7 @@ public class PositionService : IPositionService
     private IQueryable<Position> LoadFullQuery()
     {
         return _db.Positions
+            .AsSplitQuery()
             .Include(p => p.PositionAttributes).ThenInclude(pa => pa.Attribute)
             .Include(p => p.AccessRules).ThenInclude(r => r.Attribute)
             .Include(p => p.ProjectFilter).ThenInclude(f => f!.RequiredTags).ThenInclude(t => t.Tag);

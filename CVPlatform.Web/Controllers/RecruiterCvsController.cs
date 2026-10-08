@@ -1,4 +1,4 @@
-﻿using CVPlatform.Application.Common.Exceptions;
+using CVPlatform.Application.Common.Exceptions;
 using CVPlatform.Application.Cvs;
 using CVPlatform.Application.Positions;
 using CVPlatform.Domain.Constants;
@@ -40,7 +40,7 @@ public class RecruiterCvsController : Controller
 
         var result = await _recruiterCvService.SearchAsync(recruiterId, request);
 
-        var positions = await _positionService.GetAllAsync();
+        var positions = await _positionService.GetLookupAsync();
         ViewBag.Positions = positions
             .Select(p => new SelectListItem(p.Title, p.Id.ToString(), p.Id == positionId))
             .ToList();

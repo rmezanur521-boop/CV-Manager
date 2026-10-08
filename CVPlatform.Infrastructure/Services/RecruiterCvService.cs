@@ -20,11 +20,19 @@ public class RecruiterCvService : IRecruiterCvService
         _accessEvaluator = accessEvaluator;
     }
 
-    private sealed record MatchedCv(Cv Cv, ApplicationUser Candidate, Position Position);
+    private sealed record MatchedCv(
+        int CvId,
+        string CandidateId,
+        string CandidateName,
+        int PositionId,
+        string PositionTitle,
+        CvStatus Status,
+        DateTime? PublishedAt);
 
     public async Task<CvSearchResultDto> SearchAsync(string recruiterId, CvSearchRequest request)
     {
         var query = _db.Cvs
+            .AsNoTracking()
             .Where(c => c.Status == CvStatus.Published)
             .Join(_db.Users, c => c.CandidateId, u => u.Id, (c, u) => new { Cv = c, Candidate = u })
             .Join(_db.Positions, x => x.Cv.PositionId, p => p.Id, (x, p) => new { x.Cv, x.Candidate, Position = p });
@@ -40,32 +48,72 @@ public class RecruiterCvService : IRecruiterCvService
                 x.Position.Title.Contains(text));
         }
 
-        var matches = await query.ToListAsync();
-
-        var likeCounts = await _db.CvLikes
-            .GroupBy(l => l.CvId)
-            .Select(g => new { CvId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(g => g.CvId, g => g.Count);
-
-        var myLikes = await _db.CvLikes
-            .Where(l => l.RecruiterId == recruiterId)
-            .Select(l => l.CvId)
+        var matches = await query
+            .Select(x => new MatchedCv(
+                x.Cv.Id,
+                x.Candidate.Id,
+                x.Candidate.FirstName + " " + x.Candidate.LastName,
+                x.Position.Id,
+                x.Position.Title,
+                x.Cv.Status,
+                x.Cv.PublishedAt))
             .ToListAsync();
 
-        var candidatePositionPairs = matches.Select(m => (m.Candidate.Id, m.Position.Id)).ToList();
+        var candidatePositionPairs = matches.Select(m => (m.CandidateId, m.PositionId)).ToList();
         var eligiblePairs = await _accessEvaluator.GetEligibleCandidatePositionPairsAsync(candidatePositionPairs);
 
         var eligible = matches
-            .Where(m => eligiblePairs.Contains((m.Candidate.Id, m.Position.Id)))
-            .Select(m => new MatchedCv(m.Cv, m.Candidate, m.Position))
+            .Where(m => eligiblePairs.Contains((m.CandidateId, m.PositionId)))
+            .ToList();
+
+        var eligibleCvIds = eligible.Select(e => e.CvId).ToList();
+
+        var likeCounts = eligibleCvIds.Count == 0
+            ? new Dictionary<int, int>()
+            : await _db.CvLikes
+                .AsNoTracking()
+                .Where(l => eligibleCvIds.Contains(l.CvId))
+                .GroupBy(l => l.CvId)
+                .Select(g => new { CvId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.CvId, g => g.Count);
+
+        var myLikes = eligibleCvIds.Count == 0
+            ? new HashSet<int>()
+            : (await _db.CvLikes
+                .AsNoTracking()
+                .Where(l => l.RecruiterId == recruiterId && eligibleCvIds.Contains(l.CvId))
+                .Select(l => l.CvId)
+                .ToListAsync()).ToHashSet();
+
+        IEnumerable<MatchedCv> sorted = request.SortBy switch
+        {
+            "CandidateName" => request.SortDescending
+                ? eligible.OrderByDescending(x => x.CandidateName)
+                : eligible.OrderBy(x => x.CandidateName),
+            "PositionTitle" => request.SortDescending
+                ? eligible.OrderByDescending(x => x.PositionTitle)
+                : eligible.OrderBy(x => x.PositionTitle),
+            "LikesCount" => request.SortDescending
+                ? eligible.OrderByDescending(x => likeCounts.GetValueOrDefault(x.CvId, 0))
+                : eligible.OrderBy(x => likeCounts.GetValueOrDefault(x.CvId, 0)),
+            _ => request.SortDescending
+                ? eligible.OrderByDescending(x => x.PublishedAt)
+                : eligible.OrderBy(x => x.PublishedAt)
+        };
+
+        var totalCount = eligible.Count;
+        var pagedMatches = sorted
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .ToList();
 
         IReadOnlyList<PositionAttributeColumnDto> columns = Array.Empty<PositionAttributeColumnDto>();
         var valuesByCandidate = new Dictionary<string, Dictionary<int, AttributeColumnValueDto>>();
 
-        if (request.PositionId.HasValue && eligible.Count > 0)
+        if (request.PositionId.HasValue && pagedMatches.Count > 0)
         {
             var positionAttributes = await _db.PositionAttributes
+                .AsNoTracking()
                 .Where(pa => pa.PositionId == request.PositionId.Value)
                 .Include(pa => pa.Attribute)
                 .OrderBy(pa => pa.Attribute.Name)
@@ -74,14 +122,15 @@ public class RecruiterCvService : IRecruiterCvService
             columns = positionAttributes.Select(pa => new PositionAttributeColumnDto(pa.AttributeId, pa.Attribute.Name)).ToList();
 
             var attributeIds = positionAttributes.Select(pa => pa.AttributeId).ToList();
-            var candidateIds = eligible.Select(e => e.Candidate.Id).Distinct().ToList();
+            var pagedCandidateIds = pagedMatches.Select(e => e.CandidateId).Distinct().ToList();
 
             var candidateValues = await _db.CandidateAttributeValues
+                .AsNoTracking()
                 .Include(v => v.SelectedOption)
-                .Where(v => candidateIds.Contains(v.CandidateId) && attributeIds.Contains(v.AttributeId))
+                .Where(v => pagedCandidateIds.Contains(v.CandidateId) && attributeIds.Contains(v.AttributeId))
                 .ToListAsync();
 
-            foreach (var candidateId in candidateIds)
+            foreach (var candidateId in pagedCandidateIds)
             {
                 var map = new Dictionary<int, AttributeColumnValueDto>();
                 foreach (var pa in positionAttributes)
@@ -93,40 +142,21 @@ public class RecruiterCvService : IRecruiterCvService
             }
         }
 
-        var items = eligible.Select(e => new RecruiterCvListItemDto(
-            e.Cv.Id,
-            e.Candidate.Id,
-            $"{e.Candidate.FirstName} {e.Candidate.LastName}",
-            e.Position.Id,
-            e.Position.Title,
-            e.Cv.Status,
-            e.Cv.PublishedAt,
-            likeCounts.TryGetValue(e.Cv.Id, out var count) ? count : 0,
-            myLikes.Contains(e.Cv.Id),
-            valuesByCandidate.TryGetValue(e.Candidate.Id, out var vals)
+        var items = pagedMatches.Select(e => new RecruiterCvListItemDto(
+            e.CvId,
+            e.CandidateId,
+            e.CandidateName,
+            e.PositionId,
+            e.PositionTitle,
+            e.Status,
+            e.PublishedAt,
+            likeCounts.GetValueOrDefault(e.CvId, 0),
+            myLikes.Contains(e.CvId),
+            valuesByCandidate.TryGetValue(e.CandidateId, out var vals)
                 ? vals
                 : new Dictionary<int, AttributeColumnValueDto>())).ToList();
 
-        IOrderedEnumerable<RecruiterCvListItemDto> sorted = request.SortBy switch
-        {
-            "CandidateName" => request.SortDescending
-                ? items.OrderByDescending(x => x.CandidateName)
-                : items.OrderBy(x => x.CandidateName),
-            "PositionTitle" => request.SortDescending
-                ? items.OrderByDescending(x => x.PositionTitle)
-                : items.OrderBy(x => x.PositionTitle),
-            "LikesCount" => request.SortDescending
-                ? items.OrderByDescending(x => x.LikesCount)
-                : items.OrderBy(x => x.LikesCount),
-            _ => request.SortDescending
-                ? items.OrderByDescending(x => x.PublishedAt)
-                : items.OrderBy(x => x.PublishedAt)
-        };
-
-        var totalCount = items.Count;
-        var page = sorted.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToList();
-
-        return new CvSearchResultDto(columns, new PagedResult<RecruiterCvListItemDto>(page, totalCount, request.Page, request.PageSize));
+        return new CvSearchResultDto(columns, new PagedResult<RecruiterCvListItemDto>(items, totalCount, request.Page, request.PageSize));
     }
 
     public async Task<int> ToggleLikeAsync(string recruiterId, int cvId)

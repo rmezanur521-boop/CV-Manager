@@ -29,11 +29,13 @@ public class PositionAccessEvaluator : IPositionAccessEvaluator
 
         var positions = await _db.Positions
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(p => p.AccessRules).ThenInclude(r => r.Attribute)
             .Where(p => positionIds.Contains(p.Id))
             .ToListAsync();
 
         var attributeIds = positions
+            .Where(p => p.AccessMode != AccessMode.Public)
             .SelectMany(p => p.AccessRules)
             .Select(r => r.AttributeId)
             .Distinct()
@@ -74,11 +76,13 @@ public class PositionAccessEvaluator : IPositionAccessEvaluator
 
         var positions = await _db.Positions
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(p => p.AccessRules).ThenInclude(r => r.Attribute)
             .Where(p => positionIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id);
 
         var attributeIds = positions.Values
+            .Where(p => p.AccessMode != AccessMode.Public)
             .SelectMany(p => p.AccessRules)
             .Select(r => r.AttributeId)
             .Distinct()
