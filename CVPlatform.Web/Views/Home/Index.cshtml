@@ -5,46 +5,166 @@
     ViewData["MetaDescription"] = Html.T("Public.MetaDescription");
 }
 
+<!-- ========================================================================
+     Hero Section
+     ======================================================================== -->
 <section class="hero-section">
-    <div class="hero-badge">
-        <i class="bi bi-stars"></i>
-        <span>@Html.T("Public.HeroBadge")</span>
-    </div>
-    <h1 class="hero-title">
-        @Html.T("Public.HeroTitlePrefix")
-        <span class="hero-highlight">@Html.T("Public.HeroTitleHighlight")</span>
-        @Html.T("Public.HeroTitleSuffix")
-    </h1>
-    <p class="hero-subtitle">
-        @Html.T("Public.HeroSubtitle")
-    </p>
-    <div class="hero-ctas">
-        <a class="btn btn-primary px-4 py-2" asp-controller="Account" asp-action="Register">
-            <i class="bi bi-rocket-takeoff me-2"></i>@Html.T("Public.GetStarted")
-        </a>
-        <a class="btn btn-outline-primary px-4 py-2" asp-controller="Account" asp-action="Login">
-            <i class="bi bi-box-arrow-in-right me-2"></i>@Html.T("Nav.Login")
-        </a>
+    <div class="hero-container">
+        <!-- Left: Hero Headline & CTA Actions -->
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="bi bi-stars"></i>
+                <span>@Html.T("Public.HeroBadge")</span>
+            </div>
+            <h1 class="hero-title">
+                @Html.T("Public.HeroTitlePrefix")<br />
+                <span class="hero-gradient-text">@Html.T("Public.HeroTitleHighlight")</span><br />
+                @Html.T("Public.HeroTitleSuffix")
+            </h1>
+            <p class="hero-subtitle">
+                @Html.T("Public.HeroSubtitle")
+            </p>
+            <div class="hero-ctas">
+                <a class="btn-hero-primary" asp-controller="Account" asp-action="Register">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    <span>@Html.T("Public.GetStarted")</span>
+                </a>
+                <a class="btn-hero-secondary" asp-controller="Account" asp-action="Login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>@Html.T("Nav.Login")</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right: Modern Desktop Dashboard Cockpit Preview -->
+        <div class="hero-preview-wrapper">
+            <div class="hero-glow-backdrop"></div>
+            <div class="hero-dashboard-mockup">
+                <!-- Profile Header Row -->
+                <div class="mockup-profile-row">
+                    <div class="mockup-user-info">
+                        <div class="mockup-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <div class="mockup-user-name">Mezanur Rahaman</div>
+                            <div class="mockup-user-role">Software Developer</div>
+                            <div class="mockup-skill-pills">
+                                <span class="skill-pill">.NET Core</span>
+                                <span class="skill-pill">React</span>
+                                <span class="skill-pill">SQL Server</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Circular Profile Strength Ring Widget -->
+                    <div class="mockup-gauge-card">
+                        <div class="gauge-label">Profile Strength</div>
+                        <div class="gauge-ring-box">
+                            <svg class="gauge-svg" viewBox="0 0 36 36">
+                                <path class="gauge-bg-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="gauge-progress-circle" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <span class="gauge-percent">85%</span>
+                        </div>
+                        <span class="gauge-badge">Excellent</span>
+                    </div>
+                </div>
+
+                <!-- Body Grid: Mini Nav & Recommended Jobs -->
+                <div class="mockup-body-grid">
+                    <div class="mockup-nav">
+                        <div class="mockup-nav-item active"><i class="bi bi-file-earmark-person"></i> My CV</div>
+                        <div class="mockup-nav-item"><i class="bi bi-briefcase"></i> Job Matches</div>
+                        <div class="mockup-nav-item"><i class="bi bi-send"></i> Applications</div>
+                        <div class="mockup-nav-item"><i class="bi bi-chat-dots"></i> Messages</div>
+                        <div class="mockup-nav-item"><i class="bi bi-gear"></i> Settings</div>
+                    </div>
+                    <div class="mockup-jobs">
+                        <div class="mockup-jobs-title">Recommended Jobs</div>
+                        <div class="mockup-job-item">
+                            <div>
+                                <div class="job-item-role">Frontend Developer</div>
+                                <div class="job-item-company">Company A</div>
+                            </div>
+                            <span class="match-badge match-100">100%</span>
+                        </div>
+                        <div class="mockup-job-item">
+                            <div>
+                                <div class="job-item-role">Backend Developer</div>
+                                <div class="job-item-company">Company B</div>
+                            </div>
+                            <span class="match-badge">92%</span>
+                        </div>
+                        <div class="mockup-job-item">
+                            <div>
+                                <div class="job-item-role">Full Stack Developer</div>
+                                <div class="job-item-company">Company C</div>
+                            </div>
+                            <span class="match-badge">88%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Layered "Your CV" Card -->
+                <div class="mockup-floating-cv">
+                    <div class="floating-cv-header">
+                        <span class="floating-cv-title">Your CV</span>
+                        <span class="floating-cv-badge"><i class="bi bi-check2-circle"></i> ATS Friendly</span>
+                    </div>
+                    <div class="floating-cv-skeleton">
+                        <div class="skeleton-line full"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                    <a href="@Url.Action("Register", "Account")" class="btn-cv-download">
+                        <i class="bi bi-download"></i> Download
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<section class="public-stats-strip">
-    <div class="public-stats-inner">
-        <div class="public-stat-item">
-            <div class="stat-number">@Model.Stats.OpenPositionsCount</div>
-            <div class="stat-desc">@Html.T("Public.StatsOpenPositions")</div>
+<!-- ========================================================================
+     Public Statistics Strip
+     ======================================================================== -->
+<section class="public-stats-section">
+    <div class="public-stats-container">
+        <div class="stat-card">
+            <div class="stat-icon-box stat-icon-blue">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@Model.Stats.OpenPositionsCount</div>
+                <div class="stat-label">@Html.T("Public.StatsOpenPositions")</div>
+            </div>
         </div>
-        <div class="public-stat-item">
-            <div class="stat-number">@Model.Stats.CandidatesCount</div>
-            <div class="stat-desc">@Html.T("Public.StatsCandidates")</div>
+        <div class="stat-card">
+            <div class="stat-icon-box stat-icon-indigo">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@Model.Stats.CandidatesCount</div>
+                <div class="stat-label">@Html.T("Public.StatsCandidates")</div>
+            </div>
         </div>
-        <div class="public-stat-item">
-            <div class="stat-number">@Model.Stats.PublishedCvsCount</div>
-            <div class="stat-desc">@Html.T("Public.StatsPublishedCvs")</div>
+        <div class="stat-card">
+            <div class="stat-icon-box stat-icon-cyan">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-number">@Model.Stats.PublishedCvsCount</div>
+                <div class="stat-label">@Html.T("Public.StatsPublishedCvs")</div>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- ========================================================================
+     How It Works Section
+     ======================================================================== -->
 <section class="public-section" id="how-it-works">
     <div class="public-section-head">
         <h2 class="public-section-title">@Html.T("Public.HowItWorksTitle")</h2>
@@ -52,147 +172,348 @@
     </div>
     <div class="steps-grid">
         <div class="step-card">
-            <div class="step-number">1</div>
+            <div class="step-badge">
+                <i class="bi bi-person-lines-fill"></i>
+            </div>
             <h3 class="step-title">@Html.T("Public.Step1Title")</h3>
             <p class="step-desc">@Html.T("Public.Step1Desc")</p>
+            <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
         </div>
         <div class="step-card">
-            <div class="step-number">2</div>
+            <div class="step-badge">
+                <i class="bi bi-file-earmark-code-fill"></i>
+            </div>
             <h3 class="step-title">@Html.T("Public.Step2Title")</h3>
             <p class="step-desc">@Html.T("Public.Step2Desc")</p>
+            <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
         </div>
         <div class="step-card">
-            <div class="step-number">3</div>
+            <div class="step-badge">
+                <i class="bi bi-award-fill"></i>
+            </div>
             <h3 class="step-title">@Html.T("Public.Step3Title")</h3>
             <p class="step-desc">@Html.T("Public.Step3Desc")</p>
         </div>
     </div>
 </section>
 
+<!-- ========================================================================
+     For Candidates & For Recruiters Section
+     ======================================================================== -->
 <section class="public-section pt-0">
     <div class="audience-grid">
+        <!-- Candidate Feature Card -->
         <div class="audience-card" id="for-candidates">
-            <div class="audience-header">
-                <div class="audience-icon candidate-icon">
-                    <i class="bi bi-person-workspace"></i>
+            <div class="audience-card-body">
+                <div class="audience-header">
+                    <div class="audience-icon-box candidate-icon">
+                        <i class="bi bi-person-workspace"></i>
+                    </div>
+                    <h3 class="audience-title">@Html.T("Public.ForCandidatesTitle")</h3>
                 </div>
-                <h3 class="audience-title">@Html.T("Public.ForCandidatesTitle")</h3>
+                <ul class="feature-list">
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.CandFeat1")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.CandFeat2")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.CandFeat3")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.CandFeat4")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.CandFeat5")</span>
+                    </li>
+                </ul>
+                <div>
+                    <a class="btn-audience-primary" asp-controller="Account" asp-action="Register">
+                        @Html.T("Public.JoinAsCandidate")
+                    </a>
+                </div>
             </div>
-            <ul class="feature-list">
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.CandFeat1")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.CandFeat2")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.CandFeat3")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.CandFeat4")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.CandFeat5")</span>
-                </li>
-            </ul>
-            <div class="mt-4">
-                <a class="btn btn-primary w-100" asp-controller="Account" asp-action="Register">
-                    @Html.T("Public.JoinAsCandidate")
-                </a>
+            <div class="audience-visual candidate-visual">
+                <div class="visual-avatar-badge">
+                    <i class="bi bi-laptop"></i>
+                </div>
             </div>
         </div>
 
+        <!-- Recruiter Feature Card -->
         <div class="audience-card" id="for-recruiters">
-            <div class="audience-header">
-                <div class="audience-icon recruiter-icon">
-                    <i class="bi bi-briefcase-fill"></i>
+            <div class="audience-card-body">
+                <div class="audience-header">
+                    <div class="audience-icon-box recruiter-icon">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                    <h3 class="audience-title">@Html.T("Public.ForRecruitersTitle")</h3>
                 </div>
-                <h3 class="audience-title">@Html.T("Public.ForRecruitersTitle")</h3>
+                <ul class="feature-list">
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.RecFeat1")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.RecFeat2")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.RecFeat3")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.RecFeat4")</span>
+                    </li>
+                    <li class="feature-list-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@Html.T("Public.RecFeat5")</span>
+                    </li>
+                </ul>
+                <div>
+                    <a class="btn-audience-outline" asp-controller="Account" asp-action="Login">
+                        @Html.T("Public.LoginAsRecruiter")
+                    </a>
+                </div>
             </div>
-            <ul class="feature-list">
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.RecFeat1")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.RecFeat2")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.RecFeat3")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.RecFeat4")</span>
-                </li>
-                <li class="feature-list-item">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>@Html.T("Public.RecFeat5")</span>
-                </li>
-            </ul>
-            <div class="mt-4">
-                <a class="btn btn-outline-primary w-100" asp-controller="Account" asp-action="Login">
-                    @Html.T("Public.LoginAsRecruiter")
-                </a>
+            <div class="audience-visual recruiter-visual">
+                <div class="visual-avatar-badge">
+                    <i class="bi bi-clipboard2-check"></i>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-@if (Model.OpenPositions.Any())
-{
-    <section class="public-section pt-0" id="open-positions">
-        <div class="public-section-head">
-            <h2 class="public-section-title">@Html.T("Public.OpenPositionsTitle")</h2>
-            <p class="public-section-desc">@Html.T("Public.OpenPositionsSubtitle")</p>
+<!-- ========================================================================
+     Explore Open Positions Section
+     ======================================================================== -->
+<section class="public-section pt-0" id="open-positions">
+    <div class="positions-section-header">
+        <div>
+            <h2 class="public-section-title text-start">@Html.T("Public.OpenPositionsTitle")</h2>
+            <p class="public-section-desc text-start mb-0">@Html.T("Public.OpenPositionsSubtitle")</p>
         </div>
-        <div class="positions-teaser-grid">
+        <a class="view-all-positions-link" asp-controller="Positions" asp-action="Index">
+            <span>View all positions</span>
+            <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- Search & Filter Toolbar -->
+    <div class="job-search-toolbar">
+        <div class="toolbar-search-input-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="jobSearchInput" class="toolbar-input" placeholder="Search job title, company..." autocomplete="off" />
+        </div>
+        <div class="toolbar-select-wrap">
+            <select id="jobLocationSelect" class="toolbar-select" aria-label="Filter by location">
+                <option value="">All Locations</option>
+                <option value="Dhaka">Dhaka, Bangladesh</option>
+                <option value="Remote">Remote</option>
+            </select>
+        </div>
+        <div class="toolbar-select-wrap">
+            <select id="jobLevelSelect" class="toolbar-select" aria-label="Filter by level">
+                <option value="">All Experience Levels</option>
+                <option value="Junior">Junior</option>
+                <option value="Middle">Middle</option>
+                <option value="Senior">Senior</option>
+                <option value="CLevel">C-Level</option>
+            </select>
+        </div>
+        <div class="toolbar-select-wrap">
+            <select id="jobTechSelect" class="toolbar-select" aria-label="Filter by technology">
+                <option value="">All Technologies</option>
+                <option value=".NET">.NET & C#</option>
+                <option value="React">React & JavaScript</option>
+                <option value="Node">Node.js</option>
+                <option value="Cloud">Cloud & DevOps</option>
+            </select>
+        </div>
+        <button type="button" id="jobSearchBtn" class="btn-toolbar-search">
+            <i class="bi bi-search me-1"></i> Search
+        </button>
+    </div>
+
+    <!-- Jobs Grid Container -->
+    <div class="jobs-grid" id="jobsGrid">
+        @if (Model.OpenPositions != null && Model.OpenPositions.Any())
+        {
             @foreach (var pos in Model.OpenPositions)
             {
-                <div class="teaser-card">
-                    <div class="teaser-card-top">
-                        <h4 class="teaser-title">@pos.Title</h4>
-                        <div class="teaser-meta">
-                            @if (!string.IsNullOrWhiteSpace(pos.Company))
-                            {
-                                <span><i class="bi bi-building me-1"></i>@pos.Company</span>
-                            }
-                            @if (pos.Level.HasValue)
-                            {
-                                <span class="badge-soft-success">@pos.Level.Value</span>
-                            }
+                var levelStr = pos.Level?.ToString() ?? "Mid-Senior";
+                var companyStr = string.IsNullOrWhiteSpace(pos.Company) ? "CV Platform Partner" : pos.Company;
+                var shortDesc = string.IsNullOrWhiteSpace(pos.ShortDescription) 
+                    ? "Exciting career opportunity matching qualified candidates with tailored skill requirements." 
+                    : (pos.ShortDescription.Length > 120 ? pos.ShortDescription.Substring(0, 120) + "..." : pos.ShortDescription);
+
+                <div class="job-card" 
+                     data-title="@pos.Title.ToLower()" 
+                     data-company="@companyStr.ToLower()" 
+                     data-level="@levelStr.ToLower()" 
+                     data-location="remote" 
+                     data-tech="@pos.Title.ToLower()">
+                    <div class="job-card-top">
+                        <div class="job-card-header">
+                            <div class="job-role-icon">
+                                <i class="bi bi-file-earmark-code"></i>
+                            </div>
+                            <div class="job-role-info">
+                                <h4 class="job-title">@pos.Title</h4>
+                                <div class="job-company-row">
+                                    <span class="job-company">@companyStr</span>
+                                    <span class="badge-level badge-level-@levelStr.ToLower()">@levelStr</span>
+                                </div>
+                            </div>
                         </div>
-                        <p class="teaser-desc">
-                            @(pos.ShortDescription.Length > 110 ? pos.ShortDescription.Substring(0, 110) + "..." : pos.ShortDescription)
-                        </p>
+
+                        <div class="job-meta-row">
+                            <span class="job-meta-item"><i class="bi bi-geo-alt"></i> Remote / Hybrid</span>
+                            <span class="job-meta-item"><i class="bi bi-clock"></i> Full-time</span>
+                        </div>
+
+                        <p class="job-desc">@shortDesc</p>
                     </div>
-                    <div>
-                        <a class="btn btn-outline-primary btn-sm w-100" asp-controller="Account" asp-action="Register">
-                            @Html.T("Public.RegisterToApply")
-                        </a>
+
+                    <div class="job-card-footer">
+                        <div class="job-salary">
+                            <i class="bi bi-cash-coin me-1"></i> Competitive
+                        </div>
+                        <div class="job-card-actions">
+                            <a class="btn-job-apply" asp-controller="Account" asp-action="Register">
+                                Apply Now
+                            </a>
+                            <a class="btn-job-details" asp-controller="Positions" asp-action="Details" asp-route-id="@pos.Id">
+                                View Details
+                            </a>
+                        </div>
                     </div>
                 </div>
             }
-        </div>
-    </section>
-}
+        }
+        else
+        {
+            <!-- Clean fallback preview cards matching the reference UI if DB has no public positions -->
+            <div class="job-card" data-title="senior .net software engineer" data-company="brain station 23" data-level="senior" data-location="dhaka" data-tech=".net">
+                <div class="job-card-top">
+                    <div class="job-card-header">
+                        <div class="job-role-icon"><i class="bi bi-file-earmark-code"></i></div>
+                        <div class="job-role-info">
+                            <h4 class="job-title">Senior .NET Software Engineer</h4>
+                            <div class="job-company-row">
+                                <span class="job-company">Brain Station 23</span>
+                                <span class="badge-level badge-level-senior">Senior</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-meta-row">
+                        <span class="job-meta-item"><i class="bi bi-geo-alt"></i> Dhaka, Bangladesh</span>
+                        <span class="job-meta-item"><i class="bi bi-clock"></i> Full-time &bull; .NET, C#, Azure</span>
+                    </div>
+                    <p class="job-desc">Architecting distributed enterprise backend microservices and high-throughput transactional APIs.</p>
+                </div>
+                <div class="job-card-footer">
+                    <div class="job-salary">$80K - 120K / year</div>
+                    <div class="job-card-actions">
+                        <a class="btn-job-apply" asp-controller="Account" asp-action="Register">Apply Now</a>
+                        <a class="btn-job-details" asp-controller="Positions" asp-action="Index">View Details</a>
+                    </div>
+                </div>
+            </div>
 
+            <div class="job-card" data-title="full stack react & node developer" data-company="therap services" data-level="middle" data-location="remote" data-tech="react">
+                <div class="job-card-top">
+                    <div class="job-card-header">
+                        <div class="job-role-icon"><i class="bi bi-file-earmark-code"></i></div>
+                        <div class="job-role-info">
+                            <h4 class="job-title">Full Stack React & Node Developer</h4>
+                            <div class="job-company-row">
+                                <span class="job-company">Therap Services</span>
+                                <span class="badge-level badge-level-middle">Middle</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-meta-row">
+                        <span class="job-meta-item"><i class="bi bi-geo-alt"></i> Remote</span>
+                        <span class="job-meta-item"><i class="bi bi-clock"></i> Full-time &bull; React, Node.js, MongoDB</span>
+                    </div>
+                    <p class="job-desc">Building responsive modern web interfaces and scalable backend REST & GraphQL services.</p>
+                </div>
+                <div class="job-card-footer">
+                    <div class="job-salary">$50K - 90K / year</div>
+                    <div class="job-card-actions">
+                        <a class="btn-job-apply" asp-controller="Account" asp-action="Register">Apply Now</a>
+                        <a class="btn-job-details" asp-controller="Positions" asp-action="Index">View Details</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="job-card" data-title="devops & cloud infrastructure engineer" data-company="optimizely" data-level="senior" data-location="remote" data-tech="cloud">
+                <div class="job-card-top">
+                    <div class="job-card-header">
+                        <div class="job-role-icon"><i class="bi bi-file-earmark-code"></i></div>
+                        <div class="job-role-info">
+                            <h4 class="job-title">DevOps & Cloud Infrastructure Engineer</h4>
+                            <div class="job-company-row">
+                                <span class="job-company">Optimizely</span>
+                                <span class="badge-level badge-level-senior">Senior</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-meta-row">
+                        <span class="job-meta-item"><i class="bi bi-geo-alt"></i> Remote</span>
+                        <span class="job-meta-item"><i class="bi bi-clock"></i> Full-time &bull; AWS, Kubernetes, Docker</span>
+                    </div>
+                    <p class="job-desc">Managing containerized microservices deployments, automated CI/CD pipelines, and cloud security.</p>
+                </div>
+                <div class="job-card-footer">
+                    <div class="job-salary">$100K - 150K / year</div>
+                    <div class="job-card-actions">
+                        <a class="btn-job-apply" asp-controller="Account" asp-action="Register">Apply Now</a>
+                        <a class="btn-job-details" asp-controller="Positions" asp-action="Index">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty search result notice -->
+    <div id="noJobsNotice" class="text-center py-5" style="display: none;">
+        <i class="bi bi-search" style="font-size: 2rem; color: var(--pub-text-muted);"></i>
+        <h4 class="mt-3 mb-1" style="font-weight: 700; color: var(--pub-text-primary);">No matching positions found</h4>
+        <p class="text-muted">Try adjusting your search criteria or explore all available listings.</p>
+        <a class="btn-hero-primary mt-2" asp-controller="Positions" asp-action="Index">View All Positions</a>
+    </div>
+</section>
+
+<!-- ========================================================================
+     Final CTA Section
+     ======================================================================== -->
 <section class="final-cta-section">
-    <div class="final-cta-card">
-        <h2 class="final-cta-title">@Html.T("Public.FinalCtaTitle")</h2>
-        <p class="final-cta-subtitle">@Html.T("Public.FinalCtaSubtitle")</p>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a class="btn btn-primary px-4 py-2" asp-controller="Account" asp-action="Register">
-                <i class="bi bi-person-plus-fill me-2"></i>@Html.T("Nav.Register")
+    <div class="final-cta-banner">
+        <div class="final-cta-left">
+            <div class="cta-glow-icon">
+                <i class="bi bi-send-fill"></i>
+            </div>
+            <div>
+                <h2 class="final-cta-title">@Html.T("Public.FinalCtaTitle")</h2>
+                <p class="final-cta-subtitle mb-0">@Html.T("Public.FinalCtaSubtitle")</p>
+            </div>
+        </div>
+        <div class="final-cta-actions">
+            <a class="btn-cta-register" asp-controller="Account" asp-action="Register">
+                <i class="bi bi-person-plus-fill me-1"></i> @Html.T("Nav.Register")
             </a>
-            <a class="btn btn-outline-primary px-4 py-2" asp-controller="Account" asp-action="Login">
-                <i class="bi bi-box-arrow-in-right me-2"></i>@Html.T("Nav.Login")
+            <a class="btn-cta-login" asp-controller="Account" asp-action="Login">
+                <i class="bi bi-box-arrow-in-right me-1"></i> @Html.T("Nav.Login")
             </a>
         </div>
     </div>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,9 +7,6 @@
     <UserSecretsId>9694bb11-3ad8-4f9c-abf1-5f7f366f0821</UserSecretsId>
   </PropertyGroup>
 
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Markdig" Version="1.4.0" />
