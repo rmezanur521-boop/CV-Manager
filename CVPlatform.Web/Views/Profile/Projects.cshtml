@@ -1,4 +1,4 @@
-﻿@model IReadOnlyList<CVPlatform.Application.Projects.ProjectDto>
+@model IReadOnlyList<CVPlatform.Application.Projects.ProjectDto>
 @{
     ViewData["Title"] = "My Projects";
     var summary = (CVPlatform.Web.Models.Profile.ProfileSummaryViewModel)ViewBag.Summary;
@@ -7,7 +7,7 @@
 
 <div class="page-header">
     <h1>@Html.T("Profile.Projects")</h1>
-    <a class="btn btn-primary" asp-action="CreateProject" asp-route-id="@routeId">
+    <a class="btn btn-primary" asp-action="CreateProject" asp-route-candidateId="@routeId" asp-route-id="@routeId">
         <i class="bi bi-plus-lg"></i> @Html.T("Profile.NewProject")
     </a>
 </div>

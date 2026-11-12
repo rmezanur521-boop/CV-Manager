@@ -1,10 +1,14 @@
-﻿@model string
+@model string
 @{
-    var targetId = ViewBag.IsAdminViewingOther == true ? (string?)ViewBag.TargetId : null;
+    var summary = ViewBag.Summary as CVPlatform.Web.Models.Profile.ProfileSummaryViewModel;
+    var targetId = (string?)ViewBag.TargetId;
+    var currentUserId = User.GetUserId();
+    var isAdminViewingOther = (bool?)(ViewBag.IsAdminViewingOther) ?? summary?.IsAdminViewingOther ?? (targetId != null && targetId != currentUserId);
+    var routeId = isAdminViewingOther ? (targetId ?? summary?.TargetId) : null;
 }
 
 <div class="profile-tabs">
-    <a class="@(Model == "Me" ? "active" : "")" asp-action="Index" asp-route-id="@targetId">@Html.T("Profile.Me")</a>
-    <a class="@(Model == "Info" ? "active" : "")" asp-action="Info" asp-route-id="@targetId">@Html.T("Profile.Info")</a>
-    <a class="@(Model == "Projects" ? "active" : "")" asp-action="Projects" asp-route-id="@targetId">@Html.T("Profile.Projects")</a>
+    <a class="@(Model == "Me" ? "active" : "")" asp-action="Index" asp-route-id="@routeId">@Html.T("Profile.Me")</a>
+    <a class="@(Model == "Info" ? "active" : "")" asp-action="Info" asp-route-id="@routeId">@Html.T("Profile.Info")</a>
+    <a class="@(Model == "Projects" ? "active" : "")" asp-action="Projects" asp-route-id="@routeId">@Html.T("Profile.Projects")</a>
 </div>

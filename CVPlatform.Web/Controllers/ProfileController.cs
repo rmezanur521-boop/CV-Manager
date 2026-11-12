@@ -1,4 +1,4 @@
-using CVPlatform.Application.Attributes;
+﻿using CVPlatform.Application.Attributes;
 using CVPlatform.Application.Common;
 using CVPlatform.Application.Common.Exceptions;
 using CVPlatform.Application.Crm;
@@ -82,9 +82,9 @@ public class ProfileController : Controller
         return Forbid();
     }
 
-    public async Task<IActionResult> Index(string? id)
+    public async Task<IActionResult> Index(string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
@@ -389,9 +389,9 @@ public class ProfileController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAttribute(int attributeId, string? id)
+    public async Task<IActionResult> AddAttribute(int attributeId, string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
@@ -403,9 +403,9 @@ public class ProfileController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> RemoveAttribute(int attributeId, string? id)
+    public async Task<IActionResult> RemoveAttribute(int attributeId, string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
@@ -414,9 +414,9 @@ public class ProfileController : Controller
         return RedirectToAction(nameof(Info), new { id = targetId == User.GetUserId() ? null : targetId });
     }
     [HttpPost]
-    public async Task<IActionResult> SaveValue([FromBody] SetAttributeValueRequest request, string? id)
+    public async Task<IActionResult> SaveValue([FromBody] SetAttributeValueRequest request, string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
@@ -432,42 +432,50 @@ public class ProfileController : Controller
         }
     }
 
-    public async Task<IActionResult> Projects(string? id)
+    public async Task<IActionResult> Projects(string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
 
         var projects = await _projectService.GetMyProjectsAsync(targetId);
+        ViewBag.IsAdminViewingOther = targetId != User.GetUserId();
         ViewBag.TargetId = targetId;
         ViewBag.Summary = await BuildSummaryAsync(targetId);
         return View(projects);
     }
 
-    public IActionResult CreateProject(string? id)
+    public IActionResult CreateProject(string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
 
         ViewBag.TargetId = targetId;
+        ViewBag.IsAdminViewingOther = targetId != User.GetUserId();
         return View(new ProjectFormViewModel { StartDate = DateTime.Today });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateProject(ProjectFormViewModel vm, string? id)
+    public async Task<IActionResult> CreateProject(ProjectFormViewModel vm, string? id, string? candidateId)
     {
-        var targetId = id ?? User.GetUserId();
+        var targetId = candidateId ?? id ?? User.GetUserId();
 
         var guard = EnsureAccessAllowed(targetId);
         if (guard is not null) return guard;
 
+        if (vm.EndDate.HasValue && vm.EndDate.Value < vm.StartDate)
+        {
+            ModelState.AddModelError("EndDate", "End date cannot be earlier than start date.");
+        }
+
         if (!ModelState.IsValid)
         {
             ViewBag.TargetId = targetId;
+            ViewBag.IsAdminViewingOther = targetId != User.GetUserId();
             return View(vm);
         }
 
@@ -475,15 +483,16 @@ public class ProfileController : Controller
         return RedirectToAction(nameof(Projects), new { id = targetId == User.GetUserId() ? null : targetId });
     }
 
-    public async Task<IActionResult> EditProject(int id, string? candidateId)
+    public async Task<IActionResult> EditProject(int id, string? candidateId, [FromQuery] string? targetId)
     {
-        var targetId = candidateId ?? User.GetUserId();
+        var actualTargetId = candidateId ?? targetId ?? User.GetUserId();
 
-        var guard = EnsureAccessAllowed(targetId);
+        var guard = EnsureAccessAllowed(actualTargetId);
         if (guard is not null) return guard;
 
-        var project = await _projectService.GetByIdAsync(targetId, id);
-        ViewBag.TargetId = targetId;
+        var project = await _projectService.GetByIdAsync(actualTargetId, id);
+        ViewBag.TargetId = actualTargetId;
+        ViewBag.IsAdminViewingOther = actualTargetId != User.GetUserId();
 
         return View(new ProjectFormViewModel
         {
@@ -499,44 +508,51 @@ public class ProfileController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditProject(ProjectFormViewModel vm, string? candidateId)
+    public async Task<IActionResult> EditProject(ProjectFormViewModel vm, string? candidateId, [FromQuery] string? targetId)
     {
-        var targetId = candidateId ?? User.GetUserId();
+        var actualTargetId = candidateId ?? targetId ?? User.GetUserId();
 
-        var guard = EnsureAccessAllowed(targetId);
+        var guard = EnsureAccessAllowed(actualTargetId);
         if (guard is not null) return guard;
+
+        if (vm.EndDate.HasValue && vm.EndDate.Value < vm.StartDate)
+        {
+            ModelState.AddModelError("EndDate", "End date cannot be earlier than start date.");
+        }
 
         if (!ModelState.IsValid)
         {
-            ViewBag.TargetId = targetId;
+            ViewBag.TargetId = actualTargetId;
+            ViewBag.IsAdminViewingOther = actualTargetId != User.GetUserId();
             return View(vm);
         }
 
         try
         {
-            await _projectService.UpdateAsync(targetId, ToRequest(vm));
+            await _projectService.UpdateAsync(actualTargetId, ToRequest(vm));
         }
         catch (ConcurrencyConflictException ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
-            ViewBag.TargetId = targetId;
+            ViewBag.TargetId = actualTargetId;
+            ViewBag.IsAdminViewingOther = actualTargetId != User.GetUserId();
             return View(vm);
         }
 
-        return RedirectToAction(nameof(Projects), new { id = targetId == User.GetUserId() ? null : targetId });
+        return RedirectToAction(nameof(Projects), new { id = actualTargetId == User.GetUserId() ? null : actualTargetId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteProject(int id, string? candidateId)
+    public async Task<IActionResult> DeleteProject(int id, string? candidateId, [FromQuery] string? targetId)
     {
-        var targetId = candidateId ?? User.GetUserId();
+        var actualTargetId = candidateId ?? targetId ?? User.GetUserId();
 
-        var guard = EnsureAccessAllowed(targetId);
+        var guard = EnsureAccessAllowed(actualTargetId);
         if (guard is not null) return guard;
 
-        await _projectService.DeleteAsync(targetId, id);
-        return RedirectToAction(nameof(Projects), new { id = targetId == User.GetUserId() ? null : targetId });
+        await _projectService.DeleteAsync(actualTargetId, id);
+        return RedirectToAction(nameof(Projects), new { id = actualTargetId == User.GetUserId() ? null : actualTargetId });
     }
 
     [HttpGet]
@@ -554,16 +570,16 @@ public class ProfileController : Controller
             Name = vm.Name,
             StartDate = vm.StartDate,
             EndDate = vm.EndDate,
-            DescriptionMarkdown = vm.DescriptionMarkdown,
+            DescriptionMarkdown = vm.DescriptionMarkdown ?? string.Empty,
             Version = vm.Version,
-            Tags = vm.TagsCsv
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .ToList()
+            Tags = string.IsNullOrWhiteSpace(vm.TagsCsv)
+                ? new List<string>()
+                : vm.TagsCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
         };
     }
 
     private string? ResolveImageUrl(string? value) =>
     string.IsNullOrWhiteSpace(value) ? null
-    : value.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? value
+    : value.StartsWith("http", StringComparison.OrdinalIgnoreCase) || value.StartsWith("/", StringComparison.OrdinalIgnoreCase) ? value
     : _fileStorageService.GetPresignedUrl(value);
 }
